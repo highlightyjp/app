@@ -1,0 +1,2357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<title>Almanac</title>
+<style>
+:root{
+  --bg:#F2F2F7; --card:#FFFFFF; --label:#000000; --label2:rgba(60,60,67,.62); --label3:rgba(60,60,67,.32);
+  --sep:rgba(60,60,67,.16); --fill:rgba(120,120,128,.12); --fill2:rgba(120,120,128,.2);
+  --tint:#007AFF; --tint-soft:rgba(0,122,255,.12); --on-tint:#FFFFFF;
+  --red:#FF3B30; --green:#248A3D;
+  --c-wood:#248A3D; --c-fire:#D70015; --c-earth:#B25E00; --c-metal:#6E6E73; --c-water:#0055D4;
+  --glass-t:.7; --glass-a:calc(.28 + var(--glass-t) * .62); --glass-blur:calc(30px - var(--glass-t) * 12px);
+  --glass-rgb:255 255 255; --glass-edge:rgb(255 255 255 / .6); --glass-hi:rgb(255 255 255 / .75);
+  --shadow:0 8px 30px rgb(0 0 0 / .10);
+  --r-l:26px; --r-m:16px; --r-s:12px;
+  --scale:1;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans CJK JP","Noto Sans JP","Yu Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#000000; --card:#1C1C1E; --label:#FFFFFF; --label2:rgba(235,235,245,.62); --label3:rgba(235,235,245,.3);
+    --sep:rgba(84,84,88,.55); --fill:rgba(120,120,128,.24); --fill2:rgba(120,120,128,.36);
+    --tint:#0A84FF; --tint-soft:rgba(10,132,255,.2); --red:#FF453A; --green:#30D158;
+    --c-wood:#30D158; --c-fire:#FF453A; --c-earth:#FFB340; --c-metal:#AEAEB2; --c-water:#64A8FF;
+    --glass-rgb:44 44 46; --glass-edge:rgb(255 255 255 / .14); --glass-hi:rgb(255 255 255 / .16);
+    --shadow:0 8px 30px rgb(0 0 0 / .45);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#000000; --card:#1C1C1E; --label:#FFFFFF; --label2:rgba(235,235,245,.62); --label3:rgba(235,235,245,.3);
+  --sep:rgba(84,84,88,.55); --fill:rgba(120,120,128,.24); --fill2:rgba(120,120,128,.36);
+  --tint:#0A84FF; --tint-soft:rgba(10,132,255,.2); --red:#FF453A; --green:#30D158;
+  --c-wood:#30D158; --c-fire:#FF453A; --c-earth:#FFB340; --c-metal:#AEAEB2; --c-water:#64A8FF;
+  --glass-rgb:44 44 46; --glass-edge:rgb(255 255 255 / .14); --glass-hi:rgb(255 255 255 / .16);
+  --shadow:0 8px 30px rgb(0 0 0 / .45);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:calc(16px * var(--scale));-webkit-text-size-adjust:100%;color-scheme:light dark}
+body{margin:0;background:var(--bg);color:var(--label);font-family:var(--font);font-size:1.0625rem;line-height:1.4;-webkit-font-smoothing:antialiased}
+main{max-width:640px;margin:0 auto;
+  padding:calc(env(safe-area-inset-top,0px) + 60px) max(16px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom,0px) + 116px) max(16px,env(safe-area-inset-left))}
+[hidden]{display:none !important}
+h1,h2,h3,p,ul,dl,dd{margin:0}
+ul{padding:0;list-style:none}
+:focus-visible{outline:2px solid var(--tint);outline-offset:2px}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+
+/* ---- Liquid Glass ---- */
+.glass{
+  background:rgb(var(--glass-rgb) / var(--glass-a));
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);
+  border:.5px solid var(--glass-edge);box-shadow:var(--shadow),inset 0 .5px 0 var(--glass-hi);
+}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  .glass,.navbar::before{background:var(--card)}
+}
+@media (prefers-reduced-transparency: reduce){
+  .glass,.navbar::before{background:var(--card);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+
+/* ---- ナビゲーションバー ---- */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:30;padding-top:env(safe-area-inset-top,0px);pointer-events:none}
+.navbar::before{content:"";position:absolute;inset:0;background:rgb(var(--glass-rgb) / var(--glass-a));
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.8);backdrop-filter:blur(var(--glass-blur)) saturate(1.8);
+  border-bottom:.5px solid var(--sep);opacity:0;transition:opacity .2s}
+.navbar.scrolled::before{opacity:1}
+.nav-inner{position:relative;height:52px;max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:center}
+.nav-back{position:absolute;left:max(10px,env(safe-area-inset-left));top:4px;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--tint);pointer-events:auto}
+.nav-back svg{width:12px;height:20px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.nav-title{font-weight:600;font-size:1.0625rem;max-width:56%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transition:opacity .2s}
+.navbar.titled .nav-title{opacity:1}
+
+/* ---- ページ ---- */
+.page.push{animation:push .34s cubic-bezier(.2,.8,.2,1)}
+.page.fade{animation:fade .22s ease-out}
+@keyframes push{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.large-title{font-size:2.125rem;line-height:1.15;font-weight:700;letter-spacing:.01em;margin:6px 4px 2px}
+.subtitle{margin:0 4px 16px;color:var(--label2);font-size:.9375rem}
+.section-title{font-size:.8125rem;font-weight:400;color:var(--label2);margin:24px 16px 7px;letter-spacing:.02em}
+.footnote,.note{color:var(--label2);font-size:.8125rem;line-height:1.45;margin:8px 16px 0}
+.note{margin:16px 4px 0}
+.warn{color:var(--red);font-size:.875rem;margin:8px 0 0}
+.error{color:var(--red);min-height:1.4em;margin:8px 16px 0;font-size:.875rem}
+.msg{color:var(--label2);min-height:1.4em;margin:10px 16px 0;font-size:.875rem;text-align:center}
+
+/* ---- 検索 ---- */
+.search{display:flex;align-items:center;gap:8px;height:42px;padding:0 14px;margin:6px 0 0;background:var(--fill);border-radius:999px;color:var(--label2)}
+.search svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.search input{flex:1;min-width:0;height:100%;background:transparent;border:0;outline:0;color:var(--label);font:inherit;font-size:1.0625rem;padding:0;border-radius:0;min-height:0;-webkit-appearance:none;appearance:none}
+
+/* ---- グループ化リスト ---- */
+.group{background:var(--card);border-radius:var(--r-l);overflow:hidden}
+.group>*+*{position:relative}
+.group>*+*::before{content:"";position:absolute;top:0;left:16px;right:0;height:.5px;background:var(--sep)}
+.group.icons>*+*::before{left:64px}
+.group>.is-first::before{display:none}
+.item{display:flex;align-items:center;gap:13px;width:100%;min-height:62px;padding:10px 14px 10px 16px;text-align:left}
+.item:active{background:var(--fill)}
+.icon-tile{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none;
+  background:linear-gradient(180deg,rgb(255 255 255 / .28),rgb(255 255 255 / 0) 62%),var(--c,var(--tint));box-shadow:inset 0 .5px 0 rgb(255 255 255 / .45)}
+.icon-tile svg{width:21px;height:21px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.item .txt{flex:1;min-width:0}
+.item .t{display:block;font-size:1.0625rem;font-weight:500;line-height:1.3}
+.item .s{display:block;font-size:.8125rem;color:var(--label2);line-height:1.35;margin-top:1px}
+.chev{width:8px;height:14px;flex:none;fill:none;stroke:var(--label3);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---- フォーム ---- */
+.form-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px;padding:8px 16px}
+.form-row label{font-size:1.0625rem;flex:none}
+.form-row .ctl{display:flex;align-items:center;gap:8px;min-width:0;justify-content:flex-end}
+input[type=date],input[type=time],input[type=text],input[type=number],select{
+  font:inherit;font-size:1.0625rem;color:var(--label);background:var(--fill);border:0;border-radius:var(--r-s);
+  padding:10px 14px;min-height:44px;width:100%;-webkit-appearance:none;appearance:none;outline:0;
+}
+.form-row input,.form-row select{width:auto;min-height:38px;padding:7px 12px;text-align:right;max-width:100%}
+.form-row input[type=number]{width:6.5rem}
+input::placeholder{color:var(--label3)}
+input:focus,select:focus{box-shadow:0 0 0 2px var(--tint)}
+select{padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='16' viewBox='0 0 10 16' fill='none' stroke='%238E8E93' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 6l3-3.5L8 6M2 10l3 3.5L8 10'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:10px 16px}
+.form-row select{padding-right:32px;text-align-last:right}
+label{font-size:.9375rem}
+
+/* ---- ボタン ---- */
+button.primary,button.secondary{display:flex;align-items:center;justify-content:center;min-height:50px;padding:0 24px;border-radius:999px;font-weight:600;font-size:1.0625rem;margin-top:14px}
+button.primary{background:var(--tint);color:var(--on-tint)}
+button.secondary{background:var(--tint-soft);color:var(--tint)}
+button.primary:active,button.secondary:active{opacity:.7}
+.wide{width:100%}
+button.danger{display:block;width:100%;margin-top:6px;padding:12px;color:var(--red);font-size:1.0625rem}
+.profile-actions{margin-top:6px}
+
+/* ---- セグメント ---- */
+.seg{display:flex;gap:2px;padding:3px;background:var(--fill);border-radius:999px;margin-bottom:14px}
+.seg button{flex:1;min-height:34px;padding:0 12px;border-radius:999px;font-size:.9375rem;font-weight:500;color:var(--label)}
+.seg button[aria-pressed="true"]{background:var(--card);box-shadow:0 1px 4px rgb(0 0 0 / .18);font-weight:600}
+
+/* ---- スライダー ---- */
+.slider-row{padding:14px 16px 16px}
+.slider-labels{display:flex;justify-content:space-between;font-size:.8125rem;color:var(--label2);margin-bottom:8px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:32px;background:linear-gradient(to right,var(--tint) var(--p,50%),var(--fill2) var(--p,50%)) center/100% 5px no-repeat;padding:0;min-height:0;border-radius:3px}
+input[type=range]:focus{box-shadow:none}
+input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:3px;background:transparent}
+input[type=range]::-moz-range-track{height:5px;border-radius:3px;background:transparent}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#fff;margin-top:-12.5px;box-shadow:0 1px 6px rgb(0 0 0 / .3)}
+input[type=range]::-moz-range-thumb{width:30px;height:30px;border:0;border-radius:50%;background:#fff;box-shadow:0 1px 6px rgb(0 0 0 / .3)}
+.preview{position:relative;height:120px;border-radius:var(--r-l);overflow:hidden;margin-top:14px;display:grid;place-items:center;
+  background:radial-gradient(circle at 20% 30%,#ff9f0a 0,transparent 45%),radial-gradient(circle at 80% 70%,#5e5ce6 0,transparent 50%),linear-gradient(135deg,#0a84ff,#bf5af2)}
+.preview .glass{padding:12px 26px;border-radius:999px;font-weight:600}
+
+/* ---- タブバー ---- */
+.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 10px);z-index:30;
+  display:flex;gap:2px;padding:4px;border-radius:999px;width:min(calc(100% - 32px),420px)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 4px 6px;border-radius:999px;color:var(--label2);font-size:.6875rem;font-weight:500}
+.tab svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-selected="true"]{color:var(--tint);background:var(--fill)}
+
+/* ---- カード共通 ---- */
+.card,.block,.sign,.controls{background:var(--card);border-radius:var(--r-l);padding:16px 18px;margin:0 0 16px}
+.block>h2{font-size:1.0625rem;font-weight:600;margin:0 0 10px}
+.sign>h2{font-size:.8125rem;font-weight:500;color:var(--label2);margin-bottom:2px}
+.sign .big{font-size:1.75rem;font-weight:700;line-height:1.25}
+.sign .meta{color:var(--label2);font-size:.875rem;margin:1px 0 6px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9375rem}
+.kv dt{color:var(--label2)}
+.kv{margin-bottom:8px}
+.kv+p{margin-top:8px}
+.row{padding:12px 0;border-bottom:.5px solid var(--sep)}
+.row:first-child{padding-top:0}
+.row:last-child{border-bottom:0;padding-bottom:0}
+.row .head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.row .name{font-weight:600}
+.row .pos{color:var(--label2);font-size:.8125rem}
+.row p{margin:3px 0 0;font-size:.9375rem;line-height:1.5}
+.dots{display:flex;gap:4px}
+.dot{width:16px;height:6px;border-radius:3px;background:var(--fill2)}
+.dot.on{background:var(--tint)}
+.lucky{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px 20px}
+.block>.lucky,.sign>.lucky{margin-top:14px;padding-top:12px;border-top:.5px solid var(--sep)}
+.lucky dt{color:var(--label2);font-size:.8125rem}
+.lucky dd{font-weight:500;display:flex;align-items:center;gap:8px}
+.chip{width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 .5px rgb(0 0 0 / .25);flex:none}
+.destiny-note{color:var(--label2);font-size:.875rem;margin:0 4px}
+.advice h2{font-size:.8125rem;font-weight:500;color:var(--label2);margin-bottom:4px}
+.advice p{font-size:1.0625rem;line-height:1.55}
+.details{display:flex;flex-direction:column;gap:16px;min-width:0}
+.details .card{margin:0}
+.slip{background:var(--card);border-radius:var(--r-l);padding:20px 20px 18px;margin-bottom:16px;display:flex;flex-direction:column;gap:2px}
+.slip.reveal{animation:pop .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.v{writing-mode:horizontal-tb}
+.slip-title{font-size:.8125rem;color:var(--label2)}
+.slip-rank{font-size:3rem;font-weight:700;line-height:1.15}
+.slip-date{font-size:.9375rem;color:var(--label2)}
+.seal{display:none}
+
+/* ---- 四柱推命 ---- */
+.pillars{display:grid;grid-template-columns:4.4rem repeat(4,minmax(0,1fr));border:.5px solid var(--sep);border-radius:var(--r-m);overflow:hidden;font-size:.875rem}
+.pillars>div{padding:8px 4px;text-align:center;border-bottom:.5px solid var(--sep);border-right:.5px solid var(--sep);white-space:pre-line}
+.pillars>div:nth-child(5n){border-right:0}
+.pillars>div.lab{color:var(--label2);text-align:left;padding-left:10px;font-size:.75rem}
+.pillars>div.head{font-weight:600}
+.pillars>div.big{font-size:1.75rem;font-weight:700;line-height:1.3}
+.pillars>div.day{background:var(--tint-soft)}
+.pillars>div.last{border-bottom:0}
+.el0{color:var(--c-wood)}.el1{color:var(--c-fire)}.el2{color:var(--c-earth)}.el3{color:var(--c-metal)}.el4{color:var(--c-water)}
+.bal{display:grid;grid-template-columns:1.6rem 1fr 1.6rem;gap:10px;align-items:center}
+.bar{height:8px;background:var(--fill);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:currentColor;border-radius:4px}
+.bal .n{text-align:right;font-variant-numeric:tabular-nums}
+.dtab{display:grid;border:.5px solid var(--sep);border-radius:var(--r-m);overflow:hidden;font-size:.875rem}
+.dtab>div{padding:7px 2px;text-align:center;border-bottom:.5px solid var(--sep);white-space:nowrap;font-size:.8125rem}
+.dtab>div.h{font-weight:600;color:var(--label2);font-size:.75rem;background:var(--fill)}
+.dtab>div.cur{background:var(--tint-soft);font-weight:700}
+
+/* ---- 九星気学 ---- */
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;max-width:360px;background:var(--sep);border-radius:var(--r-m);overflow:hidden;border:.5px solid var(--sep)}
+.cell{background:var(--card);padding:8px 4px;text-align:center;min-height:5.6rem;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.cell .dir{font-size:.75rem;color:var(--label2)}
+.cell .st{font-weight:700;font-size:1.125rem}
+.cell .tag{font-size:.6875rem;color:var(--red);line-height:1.3}
+.cell .tag.good{color:var(--c-wood)}
+.cell.me{background:var(--tint-soft);box-shadow:inset 0 0 0 2px var(--tint)}
+
+/* ---- タロット・ルーン ---- */
+.controls{display:flex;flex-direction:column;gap:8px}
+.controls label{color:var(--label2);font-size:.8125rem;margin-top:4px}
+.controls button.primary{margin-top:10px}
+.trow{display:grid;grid-template-columns:auto 1fr;gap:16px;padding:16px 18px;margin:0 0 12px;background:var(--card);border-radius:var(--r-l);align-items:start}
+.tcard{width:84px;height:128px;border:1.5px solid var(--suit,var(--label3));border-radius:12px;background:var(--card);color:var(--suit,var(--label));
+  display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:9px 5px;flex:none;box-shadow:0 2px 8px rgb(0 0 0 / .1)}
+.tcard.rev{transform:rotate(180deg)}
+.tc-top{font-size:.6875rem;font-weight:500}
+.tc-glyph{font-size:2.1rem;font-weight:700;line-height:1}
+.tc-glyph.major{font-size:1.15rem;line-height:1.3;text-align:center}
+.tc-name{font-size:.75rem;min-height:1em;text-align:center;line-height:1.2;color:var(--label)}
+.suit-wands{--suit:var(--c-fire)}.suit-cups{--suit:var(--c-water)}.suit-swords{--suit:var(--c-metal)}.suit-pent{--suit:var(--c-earth)}
+.trow .pos{color:var(--label2);font-size:.8125rem}
+.trow .cn{font-weight:600}
+.trow .en{color:var(--label2);font-size:.8125rem;margin-left:.4rem;font-weight:400}
+.trow p{margin:4px 0 0;font-size:.9375rem;line-height:1.5}
+.rune svg{display:block}
+
+/* ---- 周易 ---- */
+.hexes{display:flex;gap:32px;flex-wrap:wrap;margin-bottom:12px}
+.hexbox{min-width:140px}
+.hexbox h2{font-size:.8125rem;font-weight:500;color:var(--label2)}
+.hexbox .cn{font-weight:600}
+.hexbox .pos{color:var(--label2);font-size:.8125rem}
+.hex{display:flex;flex-direction:column;gap:8px;width:120px;margin:10px 0}
+.hl{display:flex;gap:10px;height:7px;align-items:center}
+.hl i{flex:1;height:100%;background:var(--label);display:block;border-radius:4px}
+.hl.chg i{background:var(--red)}
+details{margin-top:12px;background:var(--card);border-radius:var(--r-l);padding:14px 18px}
+details summary{cursor:pointer;color:var(--tint);font-size:.9375rem}
+details .row{padding:8px 0}
+
+/* ---- 手相・姓名判断 ---- */
+.pick{display:grid;gap:14px 16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:0 0 6px}
+.pick>div{display:flex;flex-direction:column;gap:4px}
+.pick .hint{font-size:.75rem;color:var(--label2)}
+.stroke-row{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 4px}
+.sk{display:flex;flex-direction:column;align-items:center;gap:4px;width:4.6rem;padding:10px 6px 8px;background:var(--fill);border-radius:var(--r-m)}
+.sk .ch{font-size:1.5rem;font-weight:600;line-height:1.1}
+.sk input{width:100%;min-height:38px;padding:6px 4px;text-align:center;background:var(--card)}
+.sk .cap{font-size:.6875rem;color:var(--label2);min-height:1em;text-align:center;line-height:1.2}
+.sk.miss input{box-shadow:0 0 0 2px var(--red)}
+.gk{padding:12px 0;border-bottom:.5px solid var(--sep)}
+.gk:last-child{border-bottom:0}
+.gk .t{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.gk .t b{font-weight:600}
+.gk p{margin:3px 0 0;font-size:.9375rem}
+.gk .sub{color:var(--label2);font-size:.8125rem}
+
+@media (max-width:560px){
+  .form-row{flex-wrap:wrap}
+}
+@media (prefers-reduced-motion: reduce){
+  .page.push,.page.fade,.slip.reveal{animation:none}
+  .navbar::before,.nav-title{transition:none}
+}
+</style>
+</head>
+<body>
+<header class="navbar" id="navbar">
+  <div class="nav-inner">
+    <button type="button" class="nav-back glass" id="nav-back" hidden aria-label="戻る"><svg viewBox="0 0 12 20" aria-hidden="true"><path d="M10 2 2 10l8 8"/></svg></button>
+    <div class="nav-title" id="nav-title">Almanac</div>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ホーム -->
+  <section id="home" class="page">
+    <h1 class="large-title">Almanac</h1>
+    <p class="subtitle" id="today"></p>
+    <label class="search"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6"/><path d="M13 13l4.5 4.5"/></svg><input type="search" id="q" placeholder="検索" aria-label="ツールを検索" autocomplete="off"></label>
+    <h2 class="section-title">ツール</h2>
+    <ul class="group icons" id="tiles"></ul>
+    <p class="footnote" id="no-result" hidden>該当するツールがありません。</p>
+  </section>
+
+  <!-- プロフィール -->
+  <section id="tab-profile" class="page" hidden>
+    <h1 class="large-title">プロフィール</h1>
+    <p class="subtitle">入力した内容は、この端末のブラウザ内にのみ保存されます。</p>
+    <div class="group">
+      <div class="form-row"><label for="p-birth">生年月日</label><div class="ctl"><input type="date" id="p-birth" min="1900-01-01"></div></div>
+      <div class="form-row"><label for="p-time">出生時刻</label><div class="ctl"><input type="time" id="p-time"></div></div>
+      <div class="form-row"><label for="p-place">出生地</label><div class="ctl"><select id="p-place"></select></div></div>
+      <div class="form-row" id="p-ll" hidden><label for="p-lat">緯度・経度</label><div class="ctl"><input type="number" id="p-lat" step="0.01" min="-90" max="90" placeholder="緯度" inputmode="decimal"><input type="number" id="p-lon" step="0.01" min="-180" max="180" placeholder="経度" inputmode="decimal"></div></div>
+      <div class="form-row"><label for="p-gender">性別</label><div class="ctl"><select id="p-gender"><option value="">未設定</option><option value="m">男性</option><option value="f">女性</option></select></div></div>
+      <div class="form-row"><label for="p-blood">血液型</label><div class="ctl"><select id="p-blood"><option value="">未設定</option><option>A</option><option>B</option><option>O</option><option>AB</option></select></div></div>
+    </div>
+    <p class="footnote">出生時刻は日本標準時(任意)。出生地は上昇星座の算出に使用します。</p>
+    <button type="button" class="primary wide" id="p-save">保存</button>
+    <div class="profile-actions"><button type="button" class="danger" id="p-clear">プロフィールを消去</button></div>
+    <p class="msg" id="p-msg" role="status"></p>
+  </section>
+
+  <!-- 外観 -->
+  <section id="tab-look" class="page" hidden>
+    <h1 class="large-title">外観</h1>
+    <h2 class="section-title">テーマ</h2>
+    <div class="seg" id="theme-seg" role="group" aria-label="テーマ">
+      <button type="button" data-v="auto" aria-pressed="true">自動</button>
+      <button type="button" data-v="light" aria-pressed="false">ライト</button>
+      <button type="button" data-v="dark" aria-pressed="false">ダーク</button>
+    </div>
+    <h2 class="section-title">Liquid Glass</h2>
+    <div class="group"><div class="slider-row">
+      <div class="slider-labels"><span>クリア</span><span>ティント</span></div>
+      <input type="range" id="glass" min="0" max="100" step="1" aria-label="Liquid Glassの強さ">
+    </div></div>
+    <div class="preview" aria-hidden="true"><div class="glass">サンプル</div></div>
+    <p class="footnote">クリアにするほど透明に、ティントにするほど不透明で読みやすくなります。</p>
+    <h2 class="section-title">文字サイズ</h2>
+    <div class="group"><div class="slider-row">
+      <div class="slider-labels"><span style="font-size:.8125rem">あ</span><span style="font-size:1.25rem">あ</span></div>
+      <input type="range" id="textsize" min="85" max="135" step="5" aria-label="文字サイズ">
+    </div></div>
+    <button type="button" class="secondary wide" id="look-reset">初期値に戻す</button>
+  </section>
+
+  <!-- 今日の運勢(既存ロジックの画面) -->
+  <section id="tool-omikuji" class="page" hidden>
+    <h1 class="large-title">今日の運勢</h1>
+    <p class="subtitle">おみくじと数秘術(運命数)　必要: 生年月日</p>
+
+    <section id="input" aria-labelledby="in-label">
+      <div class="group"><div class="form-row"><label id="in-label" for="birth">生年月日</label><div class="ctl"><input type="date" id="birth" min="1900-01-01"></div></div></div>
+      <button type="button" class="primary wide" id="go">表示</button>
+      <p class="error" id="error" role="alert"></p>
+    </section>
+
+    <section id="result" hidden>
+      <div class="result">
+        <div class="slip" id="slip" aria-label="今日の結果"></div>
+        <div class="details">
+          <div id="rows" class="card"></div>
+          <dl class="lucky card" id="lucky"></dl>
+          <p class="destiny-note" id="destiny"></p>
+          <div class="advice card">
+            <h2>今日の一言</h2>
+            <p id="advice"></p>
+          </div>
+          <div class="actions"><button type="button" class="secondary wide" id="change">生年月日を変更</button></div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <div id="tools"></div>
+</main>
+
+<nav class="tabbar glass" id="tabbar" role="tablist" aria-label="メインタブ">
+  <button type="button" role="tab" class="tab" data-tab="home" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg><span>ホーム</span></button>
+  <button type="button" role="tab" class="tab" data-tab="profile" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="10" r="3"/><path d="M6 18.2c1.4-2.3 3.5-3.4 6-3.4s4.6 1.1 6 3.4"/></svg><span>プロフィール</span></button>
+  <button type="button" role="tab" class="tab" data-tab="look" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 2.5v19a9.5 9.5 0 0 1 0-19z" fill="currentColor"/></svg><span>外観</span></button>
+</nav>
+
+<!-- ============ 既存: 今日の運勢(おみくじ・数秘術) ============ -->
+<script>
+(function(){
+  "use strict";
+
+  var $ = function(id){ return document.getElementById(id); };
+  var WD = ["日","月","火","水","木","金","土"];
+  var STORE_KEY = "uranai:birth";
+
+  /* ---------- データ ---------- */
+  var RANKS = [
+    { name:"大吉", w:12, base:4.8, tier:"good" },
+    { name:"中吉", w:22, base:4.1, tier:"good" },
+    { name:"吉",   w:24, base:3.6, tier:"good" },
+    { name:"小吉", w:20, base:3.0, tier:"mid"  },
+    { name:"末吉", w:14, base:2.3, tier:"mid"  },
+    { name:"凶",   w:8,  base:1.5, tier:"low"  }
+  ];
+
+  var CATS = [
+    { key:"love", name:"恋愛運", text:[
+      "感情的な発言は控えめに。話し合いは明日以降へ。",
+      "誤解が出やすい日。返信は一晩置いてから。",
+      "大きな動きはなし。普段どおりの距離感が安定。",
+      "会話が弾みやすい日。相手の話を最後まで聞くと好印象。",
+      "気持ちを伝えるほど流れが良くなる日。連絡は自分から。"
+    ]},
+    { key:"work", name:"仕事運", text:[
+      "新規の判断は保留。既存タスクの整理に専念を。",
+      "抜け漏れに注意。提出前に一度見直しを。",
+      "平常運転。確認作業に時間を使うと後が楽。",
+      "段取りどおり進む日。午前中に重要作業を片付ける。",
+      "提案や交渉が通りやすい日。後回しの案件に着手を。"
+    ]},
+    { key:"money", name:"金運", text:[
+      "出費がかさみやすい。大きな支払いは避ける。",
+      "衝動買いに注意。購入前に一日置く。",
+      "増減なし。家計の見直しに向く。",
+      "収支は安定。必要なものを買うのに向く日。",
+      "臨時の収入や得な情報が入りやすい。投資的な出費も吉。"
+    ]},
+    { key:"health", name:"健康運", text:[
+      "無理は禁物。早めに休む。",
+      "疲れが出やすい。夜更かしは控える。",
+      "可もなく不可もなし。食事の時間を一定に。",
+      "調子は良好。水分と睡眠を意識すると維持できる。",
+      "体が軽く動く日。運動を始めるのに最適。"
+    ]}
+  ];
+
+  var COLORS = [
+    ["藍色","#2E4A8A"],["朱色","#E0523F"],["若草色","#8DB255"],["山吹色","#E8A317"],
+    ["桜色","#F3B7C5"],["紫","#7A4FA0"],["鼠色","#8A8D96"],["空色","#7FB8E0"],
+    ["深緑","#2F6B4F"],["白練","#F2EFEA"]
+  ];
+
+  var ADVICE = {
+    good:[
+      "迷っていることは今日決める。流れが後押しする。",
+      "感謝を口にすると、運が周囲にも回る。",
+      "最初の一歩は小さくていい。今日のうちに動く。"
+    ],
+    mid:[
+      "予定を詰めすぎず、余白を一つ残す。",
+      "身の回りを整えると、判断が澄む。",
+      "急がず、目の前の一件を丁寧に。"
+    ],
+    low:[
+      "今日は守りの日。無理に取り返そうとしない。",
+      "深呼吸を一回。焦りが最大の敵になる。",
+      "早く休む。明日は流れが変わる。"
+    ]
+  };
+
+  var DESTINY = {
+    1:["開拓","自ら道を切り開く人。決断の速さが強み。"],
+    2:["調和","人の間を取り持つ人。聞く力が強み。"],
+    3:["表現","言葉や発想で場を明るくする人。"],
+    4:["堅実","手順を積み上げる人。信頼が強み。"],
+    5:["変化","動きの中で伸びる人。適応力が強み。"],
+    6:["愛情","身近な人を支える人。責任感が強み。"],
+    7:["探究","一人で深く考える人。分析力が強み。"],
+    8:["達成","目標を形にする人。実行力が強み。"],
+    9:["完成","全体を見渡し締めくくる人。包容力が強み。"],
+    11:["直感","鋭い感受性で物事に気づく人。"],
+    22:["構築","大きな構想を現実にする人。"],
+    33:["奉仕","他者のために力を注ぐ人。"]
+  };
+
+  /* ---------- 乱数（同じ生年月日・同じ日付なら同じ結果） ---------- */
+  function hash(str){
+    var h = 1779033703 ^ str.length;
+    for (var i = 0; i < str.length; i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return (h ^ (h >>> 16)) >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ---------- 計算 ---------- */
+  function destinyNumber(birth){
+    var s = birth.replace(/\D/g, "").split("").reduce(function(a, c){ return a + Number(c); }, 0);
+    while (s > 9 && s !== 11 && s !== 22 && s !== 33){
+      s = String(s).split("").reduce(function(a, c){ return a + Number(c); }, 0);
+    }
+    return s;
+  }
+
+  function pick(rnd, arr){ return arr[Math.floor(rnd() * arr.length)]; }
+
+  function compute(birth, now){
+    var key = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate();
+    var rnd = mulberry32(hash(birth + "|" + key));
+
+    var total = RANKS.reduce(function(a, r){ return a + r.w; }, 0);
+    var x = rnd() * total, rank = RANKS[RANKS.length - 1];
+    for (var i = 0; i < RANKS.length; i++){
+      x -= RANKS[i].w;
+      if (x < 0){ rank = RANKS[i]; break; }
+    }
+
+    var ratings = CATS.map(function(){
+      var v = Math.round(rank.base + (rnd() - 0.5) * 1.6);
+      return Math.max(1, Math.min(5, v));
+    });
+
+    var color = pick(rnd, COLORS);
+    var number = 1 + Math.floor(rnd() * 99);
+    var advice = pick(rnd, ADVICE[rank.tier]);
+    var d = destinyNumber(birth);
+
+    return { rank:rank, ratings:ratings, color:color, number:number, advice:advice, destiny:d };
+  }
+
+  /* ---------- 表示 ---------- */
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function kanji(n){
+    var d = "〇一二三四五六七八九";
+    if (n < 10) return d[n];
+    if (n === 10) return "十";
+    if (n < 20) return "十" + d[n - 10];
+    var t = Math.floor(n / 10), o = n % 10;
+    return d[t] + "十" + (o ? d[o] : "");
+  }
+
+  function render(birth){
+    var now = new Date();
+    var r = compute(birth, now);
+
+    var slip = $("slip");
+    slip.replaceChildren(
+      el("span", "v slip-title", "今日の運勢"),
+      el("span", "v slip-rank", r.rank.name),
+      el("span", "v slip-date", kanji(now.getMonth() + 1) + "月" + kanji(now.getDate()) + "日"),
+      el("span", "seal", "運")
+    );
+    slip.classList.remove("reveal");
+    void slip.offsetWidth;
+    slip.classList.add("reveal");
+
+    var rows = $("rows");
+    rows.replaceChildren();
+    CATS.forEach(function(c, i){
+      var n = r.ratings[i];
+      var row = el("div", "row");
+      var head = el("div", "head");
+      head.appendChild(el("span", "name", c.name));
+      var dots = el("span", "dots");
+      dots.setAttribute("role", "img");
+      dots.setAttribute("aria-label", "5段階中" + n);
+      for (var k = 1; k <= 5; k++) dots.appendChild(el("span", "dot" + (k <= n ? " on" : "")));
+      head.appendChild(dots);
+      row.appendChild(head);
+      row.appendChild(el("p", null, c.text[n - 1]));
+      rows.appendChild(row);
+    });
+
+    var lucky = $("lucky");
+    lucky.replaceChildren();
+    var dtC = el("dt", null, "ラッキーカラー");
+    var ddC = el("dd");
+    var chip = el("span", "chip");
+    chip.style.background = r.color[1];
+    ddC.appendChild(chip);
+    ddC.appendChild(document.createTextNode(r.color[0]));
+    var dtN = el("dt", null, "ラッキーナンバー");
+    var ddN = el("dd", null, String(r.number));
+    var dtD = el("dt", null, "運命数");
+    var ddD = el("dd", null, r.destiny + "　" + DESTINY[r.destiny][0]);
+    var wrapC = el("div"), wrapN = el("div"), wrapD = el("div");
+    wrapC.append(dtC, ddC); wrapN.append(dtN, ddN); wrapD.append(dtD, ddD);
+    lucky.append(wrapC, wrapN, wrapD);
+
+    $("destiny").textContent = DESTINY[r.destiny][1];
+    $("advice").textContent = r.advice;
+  }
+
+  /* ---------- 画面切替・入力 ---------- */
+  function validBirth(v){
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return "生年月日を入力してください。";
+    var d = new Date(v + "T00:00:00");
+    if (isNaN(d.getTime())) return "生年月日を入力してください。";
+    if (d > new Date()) return "今日以前の日付を入力してください。";
+    if (d < new Date("1900-01-01T00:00:00")) return "1900年以降の日付を入力してください。";
+    return "";
+  }
+
+  function show(birth){
+    render(birth);
+    $("input").hidden = true;
+    $("result").hidden = false;
+  }
+
+  function save(v){ try { localStorage.setItem(STORE_KEY, v); } catch(e){} }
+  function load(){ try { return localStorage.getItem(STORE_KEY) || ""; } catch(e){ return ""; } }
+
+  var now = new Date();
+  $("today").textContent = now.getFullYear() + "年" + (now.getMonth() + 1) + "月" + now.getDate() + "日（" + WD[now.getDay()] + "）";
+  $("birth").max = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+
+  $("go").addEventListener("click", function(){
+    var v = $("birth").value;
+    var err = validBirth(v);
+    $("error").textContent = err;
+    if (err) return;
+    save(v);
+    show(v);
+  });
+  $("birth").addEventListener("keydown", function(e){ if (e.key === "Enter") $("go").click(); });
+  $("change").addEventListener("click", function(){
+    $("result").hidden = true;
+    $("input").hidden = false;
+    $("error").textContent = "";
+    $("birth").focus();
+  });
+
+  var saved = load();
+  if (saved){
+    $("birth").value = saved;
+    if (!validBirth(saved)) show(saved);
+  }
+})();
+</script>
+
+<!-- ============ 計算ロジック・データ(星座/四柱推命/九星気学/タロット/周易) ============ -->
+<script>
+const UR = (function(){
+  "use strict";
+  const mod = (a, n) => ((a % n) + n) % n;
+  const rad = Math.PI / 180;
+
+  /* ----- 乱数 ----- */
+  function hash(str){
+    let h = 1779033703 ^ str.length;
+    for (let i = 0; i < str.length; i++){
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return (h ^ (h >>> 16)) >>> 0;
+  }
+  function mulberry32(a){
+    return function(){
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function weighted(rnd, w){
+    const total = w.reduce((a, c) => a + c, 0);
+    let x = rnd() * total;
+    for (let i = 0; i < w.length; i++){ x -= w[i]; if (x < 0) return i; }
+    return w.length - 1;
+  }
+  function rint(n){
+    const a = new Uint32Array(1), lim = Math.floor(4294967296 / n) * n;
+    let x;
+    do { crypto.getRandomValues(a); x = a[0]; } while (x >= lim);
+    return x % n;
+  }
+  function shuffle(arr){
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--){ const j = rint(i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  /* ----- 天文計算(日本標準時入力 → UT) ----- */
+  function jdn(y, m, d){
+    const a = Math.floor((14 - m) / 12), yy = y + 4800 - a, mm = m + 12 * a - 3;
+    return d + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045;
+  }
+  function jdFromJST(y, m, d, h, mi){ return jdn(y, m, d) - 0.5 + (h + mi / 60) / 24 - 9 / 24; }
+  function sunLon(jd){
+    const T = (jd - 2451545) / 36525;
+    const L0 = 280.46646 + 36000.76983 * T + 0.0003032 * T * T;
+    const M = (357.52911 + 35999.05029 * T - 0.0001537 * T * T) * rad;
+    const C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M) + (0.019993 - 0.000101 * T) * Math.sin(2 * M) + 0.000289 * Math.sin(3 * M);
+    const om = (125.04 - 1934.136 * T) * rad;
+    return mod(L0 + C - 0.00569 - 0.00478 * Math.sin(om), 360);
+  }
+  function moonLon(jd){
+    const T = (jd - 2451545) / 36525;
+    const Lp = 218.3164477 + 481267.88123421 * T;
+    const D = (297.8501921 + 445267.1114034 * T) * rad;
+    const M = (357.5291092 + 35999.0502909 * T) * rad;
+    const Mp = (134.9633964 + 477198.8675055 * T) * rad;
+    const F = (93.2720950 + 483202.0175233 * T) * rad;
+    const s = Math.sin;
+    const dl = 6.288774 * s(Mp) + 1.274027 * s(2 * D - Mp) + 0.658314 * s(2 * D) + 0.213618 * s(2 * Mp)
+      - 0.185116 * s(M) - 0.114332 * s(2 * F) + 0.058793 * s(2 * D - 2 * Mp) + 0.057066 * s(2 * D - M - Mp)
+      + 0.053322 * s(2 * D + Mp) + 0.045758 * s(2 * D - M) - 0.040923 * s(M - Mp) - 0.034720 * s(D)
+      - 0.030383 * s(M + Mp) + 0.015327 * s(2 * D - 2 * F);
+    return mod(Lp + dl, 360);
+  }
+  function findTerm(year, target){
+    const jan1 = jdn(year, 1, 1) - 0.5;
+    let lo = jan1 + mod(target - 280.5, 360) / 360 * 365.2422 - 4, hi = lo + 8;
+    const f = t => mod(sunLon(t) - target + 180, 360) - 180;
+    for (let i = 0; i < 60; i++){ const mid = (lo + hi) / 2; if (f(mid) < 0) lo = mid; else hi = mid; }
+    return (lo + hi) / 2;
+  }
+  function fmtJST(jd){
+    const dt = new Date((jd + 9 / 24 - 2440587.5) * 86400000);
+    const p = n => String(n).padStart(2, "0");
+    return dt.getUTCFullYear() + "年" + (dt.getUTCMonth() + 1) + "月" + dt.getUTCDate() + "日 " + p(dt.getUTCHours()) + ":" + p(dt.getUTCMinutes());
+  }
+
+  /* ----- 星座 ----- */
+  const SIGNS = [
+    ["牡羊座","火","活動","火星","先陣を切る行動派。直情的で純粋。","感情が素早く表に出る。さっぱりしている。"],
+    ["牡牛座","地","固定","金星","安定と感覚を大切にする。粘り強い。","感情が穏やか。心地よさで安らぐ。"],
+    ["双子座","風","柔軟","水星","好奇心旺盛で情報通。器用で気が変わりやすい。","気持ちを言葉にして整理する。気分が軽やかに変わる。"],
+    ["蟹座","水","活動","月","情が深く仲間思い。守りに入りやすい。","感受性が高く、身内に深い愛情を注ぐ。"],
+    ["獅子座","火","固定","太陽","堂々として面倒見が良い。誇り高い。","認められると安心する。情熱的で寛大。"],
+    ["乙女座","地","柔軟","水星","几帳面で分析的。役に立つことに喜びを感じる。","心配性で気配り上手。整えると落ち着く。"],
+    ["天秤座","風","活動","金星","調和とバランスを重んじる。人当たりが良い。","人との調和で安らぐ。対立を避けたい。"],
+    ["蠍座","水","固定","冥王星・火星","集中力と洞察力。一度決めたら深く関わる。","感情が深く一途。心の内をあまり見せない。"],
+    ["射手座","火","柔軟","木星","自由と探究を好む楽天家。","自由を求め前向き。束縛で息苦しくなる。"],
+    ["山羊座","地","活動","土星","責任感が強く努力家。現実的。","感情を抑えて責任を果たす。慎重で自制的。"],
+    ["水瓶座","風","固定","天王星・土星","独自の視点を持つ自由人。","感情から距離を置き客観的。独立心が強い。"],
+    ["魚座","水","柔軟","海王星・木星","共感力が高く想像力豊か。","共感しやすく、影響を受けやすい。夢想的。"]
+  ];
+  function zodiac(y, m, d, time){
+    function one(fn, tol){
+      if (time){
+        const l = fn(jdFromJST(y, m, d, time.h, time.mi));
+        const r = l % 30;
+        return { main: Math.floor(l / 30), all: [Math.floor(l / 30)], near: Math.min(r, 30 - r) < tol };
+      }
+      const j0 = jdFromJST(y, m, d, 0, 0), a = Math.floor(fn(j0) / 30), b = Math.floor(fn(j0 + 1) / 30);
+      const mid = Math.floor(fn(jdFromJST(y, m, d, 12, 0)) / 30);
+      return { main: mid, all: a === b ? [a] : [a, b], near: false };
+    }
+    return { sun: one(sunLon, 0.05), moon: one(moonLon, 0.3) };
+  }
+
+  /* ----- 四柱推命 ----- */
+  const STEMS = "甲乙丙丁戊己庚辛壬癸".split("");
+  const BRANCHES = "子丑寅卯辰巳午未申酉戌亥".split("");
+  const ELEM = ["木","火","土","金","水"];
+  const BR_EL = [4, 2, 0, 0, 2, 1, 1, 2, 3, 3, 2, 4];
+  const HID = [9, 5, 0, 1, 4, 2, 3, 5, 6, 7, 4, 8];
+  const TSUHEN = ["比肩","劫財","食神","傷官","偏財","正財","偏官","正官","偏印","正印"];
+  const TERMS = ["立春","啓蟄","清明","立夏","芒種","小暑","立秋","白露","寒露","立冬","大雪","小寒"];
+  const TWELVE = ["長生","沐浴","冠帯","建禄","帝旺","衰","病","死","墓","絶","胎","養"];
+  const TWELVE_START = [11, 6, 2, 9, 2, 9, 5, 0, 8, 3];
+  function tsuhen(me, o){
+    const rel = mod(Math.floor(o / 2) - Math.floor(me / 2), 5);
+    return TSUHEN[rel * 2 + ((o % 2) === (me % 2) ? 0 : 1)];
+  }
+  function twelve(me, b){
+    const st = TWELVE_START[me];
+    return TWELVE[me % 2 === 0 ? mod(b - st, 12) : mod(st - b, 12)];
+  }
+  function bazi(y, m, d, time){
+    const jd = jdFromJST(y, m, d, time ? time.h : 12, time ? time.mi : 0);
+    const risshun = findTerm(y, 315);
+    const adjY = jd < risshun ? y - 1 : y;
+    const ys = mod(adjY - 4, 10), yb = mod(adjY - 4, 12);
+    const mIdx = Math.floor(mod(sunLon(jd) - 315, 360) / 30);
+    const ms = mod(mod(ys, 5) * 2 + 2 + mIdx, 10), mb = mod(2 + mIdx, 12);
+    const di = mod(jdn(y, m, d) + 49, 60);
+    const ds = di % 10, db = di % 12;
+    let hour = null;
+    if (time){ const hb = Math.floor(mod(time.h + 1, 24) / 2); hour = { s: mod(mod(ds, 5) * 2 + hb, 10), b: hb }; }
+    const L = mod(315 + 30 * mIdx, 360);
+    const mTerm = Math.max(...[y - 1, y].map(yr => findTerm(yr, L)).filter(t => t <= jd));
+    let warn = false;
+    if (!time){
+      const key = j => (j < risshun ? y - 1 : y) + "-" + Math.floor(mod(sunLon(j) - 315, 360) / 30);
+      const j0 = jdFromJST(y, m, d, 0, 0);
+      warn = key(j0) !== key(j0 + 1);
+    }
+    let gapMin = null;
+    if (time){
+      const ts = [];
+      for (let yr = y - 1; yr <= y + 1; yr++) for (let k = 0; k < 12; k++) ts.push(findTerm(yr, mod(315 + 30 * k, 360)));
+      gapMin = Math.min(...ts.map(t => Math.abs(t - jd))) * 1440;
+    }
+    return { year: { s: ys, b: yb }, month: { s: ms, b: mb }, day: { s: ds, b: db }, hour, adjY, mIdx, risshun, mTerm, mTermName: TERMS[mIdx], warn, near: gapMin !== null && gapMin < 30, gapMin };
+  }
+  function dayPillar(y, m, d){ const i = mod(jdn(y, m, d) + 49, 60); return { s: i % 10, b: i % 12 }; }
+
+  /* ----- 九星気学 ----- */
+  function digitSum1(n){
+    let s = String(n).split("").reduce((a, c) => a + Number(c), 0);
+    while (s > 9) s = String(s).split("").reduce((a, c) => a + Number(c), 0);
+    return s;
+  }
+  function yearStar(Y){ let n = 11 - digitSum1(Y); if (n > 9) n -= 9; return n; }
+  function honmei(Y, gender){
+    if (gender === "m") return yearStar(Y);
+    let n = digitSum1(Y) + 4; if (n > 9) n -= 9; return n;
+  }
+  function monthStar(ys, mIdx){
+    const start = [1, 4, 7].includes(ys) ? 8 : [3, 6, 9].includes(ys) ? 5 : 2;
+    return mod(start - 1 - mIdx, 9) + 1;
+  }
+  const PATH = [7, 6, 1, 4, 0, 5, 2, 3];
+  function board(c){ const b = new Array(8); PATH.forEach((p, k) => { b[p] = mod(c - 1 + k + 1, 9) + 1; }); return b; }
+  const BR_DIR = [0, 1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7];
+  const DIRS = ["北","北東","東","南東","南","南西","西","北西"];
+  const STARS = [
+    ["一白水星","水","北","柔軟で適応力があり、知恵に富む。"],
+    ["二黒土星","土","南西","勤勉で受容的。縁の下で支える。"],
+    ["三碧木星","木","東","行動的で若々しい。発信力がある。"],
+    ["四緑木星","木","南東","誠実で調和を重んじる。信用を積む。"],
+    ["五黄土星","土","中央","個性が強く統率力がある。"],
+    ["六白金星","金","北西","責任感が強く気高い。指導力がある。"],
+    ["七赤金星","金","西","社交的で華やか。楽しみを大切にする。"],
+    ["八白土星","土","北東","意志が固く、蓄積と変革を担う。"],
+    ["九紫火星","火","南","直感と美意識に優れ、情熱的。"]
+  ];
+  function kyusei(now, birthY, birthMIdx, gender){
+    const nowJd = now.getTime() / 86400000 + 2440587.5;
+    const cy = now.getFullYear();
+    const curY = nowJd < findTerm(cy, 315) ? cy - 1 : cy;
+    const c = yearStar(curY), b = board(c);
+    const hon = honmei(birthY, gender);
+    const pos = s => (s === c ? -1 : b.indexOf(s));
+    const opp = p => (p < 0 ? -1 : (p + 4) % 8);
+    const go = pos(5), me = pos(hon);
+    const sai = mod(curY - 4, 12);
+    return {
+      curY, center: c, board: b, honmei: hon, yearStarBirth: yearStar(birthY),
+      month: monthStar(yearStar(birthY), birthMIdx),
+      tags: { gooo: go, anken: opp(go), saiha: (BR_DIR[sai] + 4) % 8, honmeisatsu: me, honmeiteki: opp(me) }
+    };
+  }
+
+  /* ----- 周易 ----- */
+  const HEXDATA = [
+    ["乾為天","剛健・創造・大いに伸びる。驕りは戒め"],["坤為地","柔順・受容・従うことで通じる"],
+    ["水雷屯","産みの苦しみ・始まりの困難。焦らず助けを得る"],["山水蒙","未熟・啓蒙・教えを乞う"],
+    ["水天需","待つ・時機を待ち力を蓄える"],["天水訟","争い・訴訟・対立は早めに収める"],
+    ["地水師","統率・集団の戦い・規律が要"],["水地比","親しみ・和合・信頼できる相手と結ぶ"],
+    ["風天小畜","小さな蓄え・一時の足止め・曇り空"],["天沢履","虎の尾を踏む・慎重な実践・礼節"],
+    ["地天泰","天地の交わり・安泰・順調"],["天地否","塞がる・閉塞・耐える時"],
+    ["天火同人","志を同じくする・協調・公明正大"],["火天大有","大いに保つ・豊かさ・謙虚に"],
+    ["地山謙","謙虚・控えめが吉・実りある"],["雷地予","喜び・準備・楽しみながら備える"],
+    ["沢雷随","従う・時流に随う・柔軟な適応"],["山風蠱","腐敗の刷新・立て直し・積弊の改革"],
+    ["地沢臨","臨む・勢いの増す時・上から見守る"],["風地観","観察・見極め・自らを省みる"],
+    ["火雷噬嗑","噛み砕く・障害の排除・断固たる処置"],["山火賁","飾る・美・見た目より中身"],
+    ["山地剥","剥落・衰退・動かず耐える"],["地雷復","復活・一陽来復・戻る"],
+    ["天雷无妄","無心・偽りなし・自然体で進む"],["山天大畜","大いに蓄える・力を養う・学び"],
+    ["山雷頤","養う・言葉と食・自他を養う"],["沢風大過","行き過ぎ・重荷・非常の時"],
+    ["坎為水","険難・重なる困難・誠意で貫く"],["離為火","明るさ・付着・拠り所を得る"],
+    ["沢山咸","感応・惹かれ合い・心が通う"],["雷風恒","恒久・持続・変わらぬ道を守る"],
+    ["天山遯","退く・逃れる・引き際の見極め"],["雷天大壮","盛大・勢い盛ん・力を正しく使う"],
+    ["火地晋","進む・昇進・日が昇る"],["地火明夷","明を傷つく・才を隠す・忍ぶ時"],
+    ["風火家人","家庭・内を整える・役割の明確化"],["火沢睽","背き合う・不和・小事に吉"],
+    ["水山蹇","足止め・行き悩み・立ち止まり助けを得る"],["雷水解","解放・解決・緊張がほどける"],
+    ["山沢損","減らす・損して得を取る・誠意"],["風雷益","増す・益をもたらす・進んで行動する"],
+    ["沢天夬","決断・決壊・正しさを公に示す"],["天風姤","出会い・思わぬ遭遇・慎重に"],
+    ["沢地萃","集まる・結集・人を束ねる"],["地風升","昇る・着実な上昇・努力の成果"],
+    ["沢水困","窮する・行き詰まり・信念を守る"],["水風井","井戸・尽きぬ源・変わらぬ価値"],
+    ["沢火革","革める・変革・時機を得た改革"],["火風鼎","鼎・新しい体制・安定と革新"],
+    ["震為雷","震動・驚き・動じず慎む"],["艮為山","止まる・静止・時を見て動く"],
+    ["風山漸","漸進・順を追って進む・縁談吉"],["雷沢帰妹","焦る縁・不本意な結び・慎重に"],
+    ["雷火豊","盛大・豊かさ・絶頂と翳り"],["火山旅","旅・不安定・慎み深く"],
+    ["巽為風","従い入る・浸透・柔らかく進める"],["兌為沢","悦ぶ・喜び・和やかな交流"],
+    ["風水渙","散る・氾濫・停滞の打破・人心の結束"],["水沢節","節度・けじめ・過不足を整える"],
+    ["風沢中孚","誠・真心・信頼で通じる"],["雷山小過","小さな行き過ぎ・小事に吉・大事は控える"],
+    ["水火既済","成就・完成・油断は禁物"],["火水未済","未完・これから・慎重に進める"]
+  ];
+  const TRI = { "乾":[1,1,1], "兌":[1,1,0], "離":[1,0,1], "震":[1,0,0], "巽":[0,1,1], "坎":[0,1,0], "艮":[0,0,1], "坤":[0,0,0] };
+  const NAT = { "水":"坎", "雷":"震", "山":"艮", "天":"乾", "地":"坤", "風":"巽", "火":"離", "沢":"兌" };
+  const HEX = HEXDATA.map((h, i) => {
+    const n = h[0], dbl = n[1] === "為";
+    return { no: i + 1, name: n, mean: h[1], up: dbl ? n[0] : NAT[n[0]], low: dbl ? n[0] : NAT[n[1]] };
+  });
+  function triOf(l3){ return Object.keys(TRI).find(k => TRI[k].every((v, i) => v === l3[i])); }
+  function hexOf(lines){
+    const low = triOf(lines.slice(0, 3)), up = triOf(lines.slice(3, 6));
+    return HEX.find(h => h.up === up && h.low === low);
+  }
+  function cast(){
+    const vals = [];
+    for (let i = 0; i < 6; i++) vals.push((2 + rint(2)) + (2 + rint(2)) + (2 + rint(2)));
+    const base = vals.map(v => (v === 7 || v === 9 ? 1 : 0));
+    const chg = vals.map(v => v === 6 || v === 9);
+    const hasChg = chg.some(Boolean);
+    const alt = base.map((b, i) => (chg[i] ? 1 - b : b));
+    return { vals, base, chg, hex: hexOf(base), alt: hasChg ? hexOf(alt) : null, altLines: alt };
+  }
+
+  /* ----- タロット ----- */
+  const ROMAN = ["0","I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX","XXI"];
+  const MAJOR = [
+    ["愚者","The Fool","自由・冒険・新しい始まり|無計画・軽率・停滞"],
+    ["魔術師","The Magician","創造・行動力・才能の発揮|空回り・準備不足・不誠実"],
+    ["女教皇","The High Priestess","直感・静観・内なる知恵|神経質・秘密・独断"],
+    ["女帝","The Empress","豊かさ・愛情・実り|過保護・停滞・浪費"],
+    ["皇帝","The Emperor","安定・責任・統率|支配・頑固・未熟"],
+    ["教皇","The Hierophant","信頼・伝統・助言|独善・形式主義・反発"],
+    ["恋人","The Lovers","選択・調和・惹かれ合い|不調和・迷い・誘惑"],
+    ["戦車","The Chariot","前進・勝利・意志|暴走・挫折・空回り"],
+    ["力","Strength","勇気・忍耐・優しい強さ|自信喪失・衝動・弱気"],
+    ["隠者","The Hermit","内省・探求・孤独な成熟|孤立・閉じこもり・頑な"],
+    ["運命の輪","Wheel of Fortune","転機・好転・巡り合わせ|停滞・悪循環・タイミングのずれ"],
+    ["正義","Justice","公正・均衡・正しい判断|不公平・偏り・優柔不断"],
+    ["吊るされた男","The Hanged Man","忍耐・視点の転換・犠牲|徒労・自己犠牲・停滞"],
+    ["死神","Death","終わりと再生・区切り|執着・停滞・変化への抵抗"],
+    ["節制","Temperance","調和・節度・穏やかな交流|不均衡・浪費・ちぐはぐ"],
+    ["悪魔","The Devil","執着・誘惑・束縛|解放・断ち切り・依存からの脱却"],
+    ["塔","The Tower","崩壊・衝撃・突然の変化|危機回避・緊張の持続・遅れた崩壊"],
+    ["星","The Star","希望・癒やし・願いの実現|失望・悲観・理想の空回り"],
+    ["月","The Moon","不安・曖昧・揺らぎ|不安の解消・霧が晴れる・誤解の解消"],
+    ["太陽","The Sun","成功・喜び・明るい未来|一時的な陰り・過信・遅延"],
+    ["審判","Judgement","復活・決断・呼び声|後悔・決断の遅れ・自己批判"],
+    ["世界","The World","完成・達成・統合|未完・あと一歩・停滞"]
+  ];
+  const RANK_JP = ["エース","2","3","4","5","6","7","8","9","10","ペイジ","ナイト","クイーン","キング"];
+  const RANK_EN = ["Ace","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Page","Knight","Queen","King"];
+  const RANK_LB = ["1","2","3","4","5","6","7","8","9","10","侍","騎","女","王"];
+  const SUITS = [
+    { cls:"suit-wands", jp:"ワンド", en:"Wands", g:"杖", c:[
+      "情熱の始まり・創造の芽|出遅れ・意欲低下","計画・展望・決断の前|迷い・恐れ・計画の停滞","展開・見通し・待ち望んだ成果|遅延・見込み違い",
+      "祝福・安定・和やかな集い|不安定・祝い事の延期","競争・衝突・小さな争い|対立の収束・避けられる争い","勝利・称賛・成功|失墜・自信喪失・評価されない",
+      "防衛・踏ん張り・優位の維持|圧倒・諦め・防戦一方","迅速・知らせ・急展開|遅れ・混乱・急ぎすぎ","警戒・粘り・あと一歩の忍耐|疲弊・頑固・被害妄想",
+      "重荷・責任・過負荷|荷下ろし・限界・責任の放棄","好奇心・新しい知らせ・熱意|軽率・未熟・気まぐれ","行動・冒険・情熱的な前進|無鉄砲・短気・空回り",
+      "魅力・自信・温かな存在感|嫉妬・気分屋・高圧的","統率・ビジョン・頼れる実行力|独裁・傲慢・短気"] },
+    { cls:"suit-cups", jp:"カップ", en:"Cups", g:"杯", c:[
+      "愛の始まり・感情の充足|感情の停滞・満たされなさ","相思相愛・パートナーシップ|不調和・すれ違い","友情・祝宴・喜びの共有|過剰・三角関係・羽目外し",
+      "倦怠・内省・見過ごしたチャンス|気づき・再始動・新たな関心","喪失・後悔・残されたもの|立ち直り・受容・前を向く","懐かしさ・純粋な交流・再会|過去への執着・幼さ",
+      "幻想・選択肢の多さ・夢想|現実的判断・迷いの整理","手放し・旅立ち・より深い探求|未練・停滞・逃避","願望成就・満足・満たされた状態|慢心・不満・浅い満足",
+      "家庭の幸福・円満・愛の完成|不和・すれ違い・理想と現実の差","優しい知らせ・感受性・純粋な好意|感情的・未熟・過敏","ロマンス・提案・魅力的な誘い|気まぐれ・現実逃避・裏がある誘い",
+      "慈愛・共感・直感的な思いやり|情緒不安定・依存・感情に流される","情の深さ・包容力・成熟した対応|感情の抑圧・操作・冷淡"] },
+    { cls:"suit-swords", jp:"ソード", en:"Swords", g:"剣", c:[
+      "明晰・決断・真実の発見|混乱・判断ミス・言葉の暴走","決断の保留・均衡・膠着|優柔不断・情報過多・限界","悲しみ・心の痛み・別れ|回復・痛みの緩和・引きずり",
+      "休息・静養・充電|焦り・休めない・再始動","対立・敗北・勝っても残る空虚|和解・後味の悪さ・引き際","移行・回復への旅・静かな前進|停滞・持ち越す問題・前進の遅れ",
+      "策略・単独行動・抜け目なさ|発覚・後悔・正直に戻る","束縛・思い込み・身動きが取れない|解放・気づき・自ら抜け出す","不安・悪夢・眠れぬ夜|不安の軽減・現実直視・最悪の脱出",
+      "終局・どん底・限界の先|回復・底打ち・最悪期の終わり","好奇心・情報収集・鋭い観察|詮索・口の悪さ・浅はか","迅速・果敢・論理的な突進|性急・攻撃的・衝突",
+      "冷静・的確・独立した判断|冷酷・辛辣・偏見","論理・公正・知的な権威|冷徹・独断・権力の乱用"] },
+    { cls:"suit-pent", jp:"ペンタクル", en:"Pentacles", g:"貨", c:[
+      "金運の芽・新しい機会・堅実な始まり|機会損失・計画の甘さ","バランス・柔軟な調整・やりくり|乱れ・優先順位の混乱","協力・技術・確かな評価|未熟・連携不足・手抜き",
+      "保持・安定・守り|執着・ケチ・変化への恐れ","困窮・孤立・欠乏感|回復・援助・困難の終わり","施し・分かち合い・公正な取引|不均衡・貸し借り・条件付きの援助",
+      "待つ・見直し・成果の途中経過|焦り・努力の空回り・見込み違い","修練・集中・地道な努力|単調・手抜き・完璧主義","自立・豊かさ・品位ある成功|依存・浪費・見せかけの豊かさ",
+      "財産・継承・長期的な安定|家庭内の不和・資産の不安・浪費","学び・堅実な一歩・良い知らせ|怠惰・計画倒れ・非現実的","着実・忍耐・責任感|停滞・頑固・退屈",
+      "豊かさ・実用性・温かな現実感|過保護・物質偏重・不安定","繁栄・信頼・堅実な成功者|強欲・頑固・物質主義"] }
+  ];
+  function buildDeck(){
+    const deck = [];
+    MAJOR.forEach((m, i) => {
+      const [up, rev] = m[2].split("|");
+      deck.push({ name: m[0], en: m[1], up, rev, top: ROMAN[i], glyph: m[0], major: true, cls: "" });
+    });
+    SUITS.forEach(s => s.c.forEach((t, i) => {
+      const [up, rev] = t.split("|");
+      deck.push({ name: s.jp + "の" + RANK_JP[i], en: RANK_EN[i] + " of " + s.en, up, rev, top: s.jp, short: RANK_JP[i], glyph: s.g, major: false, cls: s.cls });
+    }));
+    return deck;
+  }
+  const DECK = buildDeck();
+  function draw(n){ return shuffle(DECK).slice(0, n).map(c => ({ card: c, rev: rint(2) === 1 })); }
+
+  return {
+    hash, mulberry32, weighted, rint, mod,
+    jdn, jdFromJST, sunLon, moonLon, findTerm, fmtJST,
+    SIGNS, zodiac,
+    STEMS, BRANCHES, ELEM, BR_EL, HID, TSUHEN, tsuhen, twelve, TWELVE, bazi, dayPillar,
+    yearStar, honmei, monthStar, board, kyusei, DIRS, STARS,
+    HEX, cast, hexOf, DECK, draw,
+    shuffle, BR_DIR, PATH, digitSum1, TERMS
+  };
+})();
+</script>
+
+<!-- ============ 追加ロジック(大運・九星三盤・上昇星座・爻辞・姓名判断・手相・ルーン) ============ -->
+<script>
+const UX = (function(U){
+  "use strict";
+  const mod = U.mod, rad = Math.PI / 180;
+  const LINE_NAME = ["初爻","二爻","三爻","四爻","五爻","上爻"];
+
+  /* ===== 四柱推命: 蔵干(余気・中気・本気と日数)・司令・大運・流年 ===== */
+  const ZK = [
+    [[8,10],[9,20]],[[9,9],[7,3],[5,18]],[[4,7],[2,7],[0,16]],[[0,10],[1,20]],
+    [[1,9],[9,3],[4,18]],[[4,7],[6,7],[2,16]],[[2,10],[5,9],[3,11]],[[3,9],[1,3],[5,18]],
+    [[4,7],[8,7],[6,16]],[[6,10],[7,20]],[[7,9],[3,3],[4,18]],[[4,7],[0,7],[8,16]]
+  ];
+  function siryou(b, days){
+    let acc = 0; const z = ZK[b];
+    for (let i = 0; i < z.length; i++){ acc += z[i][1]; if (days < acc) return i; }
+    return z.length - 1;
+  }
+  function idx60(s, b){ for (let i = 0; i < 60; i++) if (i % 10 === s && i % 12 === b) return i; return 0; }
+  function allSetsu(y){
+    const out = [];
+    for (let yr = y - 1; yr <= y + 1; yr++) for (let k = 0; k < 12; k++) out.push({ jd: U.findTerm(yr, mod(315 + 30 * k, 360)), k });
+    return out.sort((a, b) => a.jd - b.jd);
+  }
+  function daiun(y, m, d, time, gender, bz){
+    const jd = U.jdFromJST(y, m, d, time ? time.h : 12, time ? time.mi : 0);
+    const yangYear = bz.year.s % 2 === 0;
+    const fwd = (yangYear && gender === "m") || (!yangYear && gender === "f");
+    const set = allSetsu(y);
+    let diff;
+    if (fwd) diff = set.find(t => t.jd > jd).jd - jd;
+    else diff = jd - [...set].reverse().find(t => t.jd <= jd).jd;
+    const months = Math.round(diff / 3 * 12);
+    const base = idx60(bz.month.s, bz.month.b);
+    const periods = [];
+    for (let k = 1; k <= 10; k++){
+      const i = mod(base + (fwd ? k : -k), 60);
+      periods.push({ s: i % 10, b: i % 12, ageFrom: months / 12 + 10 * (k - 1) });
+    }
+    return { fwd, startYears: Math.floor(months / 12), startMonths: months % 12, periods };
+  }
+  function liunian(fromY, n){
+    const out = [];
+    for (let i = 0; i < n; i++){ const Y = fromY + i; out.push({ y: Y, s: mod(Y - 4, 10), b: mod(Y - 4, 12) }); }
+    return out;
+  }
+
+  /* ===== 九星気学: 年盤・月盤・日盤・吉方位・傾斜宮 ===== */
+  const PAL_HOME = { 1:0, 2:5, 3:2, 4:3, 6:7, 7:6, 8:1, 9:4 };
+  const STAR_EL = [4, 2, 0, 0, 2, 3, 3, 2, 1];
+  const PALNAME = ["坎宮","艮宮","震宮","巽宮","離宮","坤宮","兌宮","乾宮"];
+  const PALTEXT = {
+    "坎宮":"苦労を厭わず知恵で切り開く。忍耐強く、内に秘めた力がある。",
+    "艮宮":"変化・改革を担う。意志が固く、転機の多い人生になりやすい。",
+    "震宮":"行動的で発展を好む。若々しく、発信力と勢いがある。",
+    "巽宮":"誠実で調和を重んじる。信用を積み、人との縁に恵まれる。",
+    "離宮":"直感と美意識に優れる。情熱的で華やかだが、熱しやすい。",
+    "坤宮":"従順で勤勉。縁の下で支え、受け入れる力がある。",
+    "兌宮":"社交的で楽しみを大切にする。話術や愛嬌に恵まれる。",
+    "乾宮":"気高く責任感が強い。統率力があり、上に立つ運を持つ。",
+    "中宮":"本命星と月命星が同じ。中心に立つ強い個性を持つ。"
+  };
+  function boardDir(c, dir){
+    const b = new Array(8);
+    U.PATH.forEach((p, k) => { b[p] = mod(c - 1 + dir * (k + 1), 9) + 1; });
+    return b;
+  }
+  function dayStar(y, m, d){
+    const D = U.jdn(y, m, d);
+    const near = S => { const r = mod(S - 11, 60), before = S - r, after = before + 60; return (S - before) <= (after - S) ? before : after; };
+    const trans = [];
+    for (let yr = y - 1; yr <= y + 1; yr++){
+      const w = Math.floor(U.findTerm(yr, 270) + 9 / 24 + 0.5), s = Math.floor(U.findTerm(yr, 90) + 9 / 24 + 0.5);
+      trans.push({ j: near(w), yang: true }); trans.push({ j: near(s), yang: false });
+    }
+    trans.sort((a, b) => a.j - b.j);
+    let cur = trans[0];
+    for (const t of trans) if (t.j <= D) cur = t;
+    const diff = D - cur.j;
+    return { star: cur.yang ? mod(diff, 9) + 1 : 9 - mod(diff, 9), yang: cur.yang, from: cur.j };
+  }
+  function analyze(stars, center, me, brDir, brLabel){
+    const opp = p => (p < 0 ? -1 : (p + 4) % 8);
+    const pos = s => (s === center ? -1 : stars.indexOf(s));
+    const go = pos(5), mp = pos(me);
+    const flags = Array.from({ length: 8 }, () => []);
+    if (go >= 0){ flags[go].push("五黄殺"); flags[opp(go)].push("暗剣殺"); }
+    if (mp >= 0){ flags[mp].push("本命殺"); flags[opp(mp)].push("本命的殺"); }
+    flags[(brDir + 4) % 8].push(brLabel);
+    if (PAL_HOME[me] !== undefined) flags[(PAL_HOME[me] + 4) % 8].push("定位対冲");
+    const tier = flags.map((f, p) => {
+      if (f.length) return null;
+      const rel = mod(STAR_EL[stars[p] - 1] - STAR_EL[me - 1], 5);
+      return rel === 4 ? "大吉" : rel === 0 ? "吉" : rel === 1 ? "小吉" : null;
+    });
+    return { flags, tier };
+  }
+  function kyuseiFull(now, birthY, birthMIdx, gender){
+    const nowJd = now.getTime() / 86400000 + 2440587.5;
+    const cy = now.getFullYear();
+    const curY = nowJd < U.findTerm(cy, 315) ? cy - 1 : cy;
+    const ys = U.yearStar(curY);
+    const mIdx = Math.floor(mod(U.sunLon(nowJd) - 315, 360) / 30);
+    const ms = U.monthStar(ys, mIdx);
+    const dsr = dayStar(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    const dp = U.dayPillar(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    const me = U.honmei(birthY, gender);
+    const byr = U.yearStar(birthY);
+    const boards = [
+      { key:"year",  label:"年盤", center:ys,       dir:1,               brDir:U.BR_DIR[mod(curY - 4, 12)], brLabel:"歳破" },
+      { key:"month", label:"月盤", center:ms,       dir:1,               brDir:U.BR_DIR[mod(2 + mIdx, 12)], brLabel:"月破" },
+      { key:"day",   label:"日盤", center:dsr.star, dir:dsr.yang ? 1 : -1, brDir:U.BR_DIR[dp.b],             brLabel:"日破" }
+    ];
+    boards.forEach(b => { b.stars = boardDir(b.center, b.dir); Object.assign(b, analyze(b.stars, b.center, me, b.brDir, b.brLabel)); });
+    const all = [];
+    for (let p = 0; p < 8; p++) if (boards.every(b => b.tier[p])) all.push(p);
+    const monthStarBirth = U.monthStar(byr, birthMIdx);
+    const kp = monthStarBirth === me ? -1 : U.board(me).indexOf(monthStarBirth);
+    return { curY, term: U.TERMS[mIdx], me, monthStarBirth, boards, all, yang: dsr.yang, keisha: kp < 0 ? "中宮" : PALNAME[kp] };
+  }
+
+  /* ===== 上昇星座 ===== */
+  function ascendant(jdUT, lat, lon){
+    const T = (jdUT - 2451545) / 36525;
+    const gmst = 280.46061837 + 360.98564736629 * (jdUT - 2451545) + 0.000387933 * T * T - T * T * T / 38710000;
+    const th = mod(gmst + lon, 360) * rad;
+    const eps = (23.4392911 - 0.0130042 * T) * rad;
+    const ph = lat * rad;
+    return mod(Math.atan2(Math.cos(th), -(Math.sin(th) * Math.cos(eps) + Math.tan(ph) * Math.sin(eps))) / rad, 360);
+  }
+  const ASC_TEXT = [
+    "積極的で率直な印象。","落ち着いて穏やかな印象。","軽やかで話し上手な印象。","親しみやすく、守ってあげたくなる印象。",
+    "華やかで堂々とした印象。","清潔感があり控えめな印象。","品があり社交的な印象。","ミステリアスで存在感のある印象。",
+    "明るく自由な印象。","落ち着いた真面目な印象。","個性的で独立した印象。","やわらかく夢見がちな印象。"
+  ];
+  const PLACES = [
+    ["北海道",43.06,141.35],["青森県",40.82,140.74],["岩手県",39.70,141.15],["宮城県",38.27,140.87],["秋田県",39.72,140.10],
+    ["山形県",38.24,140.36],["福島県",37.75,140.47],["茨城県",36.34,140.45],["栃木県",36.57,139.88],["群馬県",36.39,139.06],
+    ["埼玉県",35.86,139.65],["千葉県",35.61,140.12],["東京都",35.69,139.69],["神奈川県",35.45,139.64],["新潟県",37.90,139.02],
+    ["富山県",36.70,137.21],["石川県",36.59,136.63],["福井県",36.07,136.22],["山梨県",35.66,138.57],["長野県",36.65,138.18],
+    ["岐阜県",35.39,136.72],["静岡県",34.98,138.38],["愛知県",35.18,136.91],["三重県",34.73,136.51],["滋賀県",35.00,135.87],
+    ["京都府",35.02,135.76],["大阪府",34.69,135.52],["兵庫県",34.69,135.18],["奈良県",34.69,135.83],["和歌山県",34.23,135.17],
+    ["鳥取県",35.50,134.24],["島根県",35.47,133.05],["岡山県",34.66,133.93],["広島県",34.40,132.46],["山口県",34.19,131.47],
+    ["徳島県",34.07,134.56],["香川県",34.34,134.04],["愛媛県",33.84,132.77],["高知県",33.56,133.53],["福岡県",33.61,130.42],
+    ["佐賀県",33.25,130.30],["長崎県",32.74,129.87],["熊本県",32.79,130.74],["大分県",33.24,131.61],["宮崎県",31.91,131.42],
+    ["鹿児島県",31.56,130.56],["沖縄県",26.21,127.68]
+  ];
+
+  /* ===== 周易: 卦辞・爻辞(意訳) ===== */
+  const HXT = `
+大いに通じ、正しさを守れば利がある。|潜む龍。まだ動いてはならない。|龍が地上に現れる。大人に会うのに利あり。|君子は終日励み、夕べも慎む。危ういが咎なし。|躍り出るか、淵に留まるか。咎なし。|龍が天に飛ぶ。大人に会うのに利あり。|昇り詰めた龍は悔いがある。行き過ぎに注意。
+大いに通じる。牝馬の貞に利あり。先に立てば迷い、後に従えば主を得る。西南に友を得、東北に友を失うが、安らかに正しくして吉。|霜を踏めば、やがて堅い氷が来る。兆しに注意。|直く方正で大きい。習わずとも利あり。|才を内に秘めて正しく居る。王事に従い、成果を誇らない。|袋の口を閉じるように慎む。咎もなく誉れもない。|黄色い裳。控えめな徳で大吉。|龍が野で戦う。その血は玄黄。争いの極み。
+大いに通じ、正しきに利あり。動いてはならず、助けを立てるのに利あり。|行き悩む。正しく居るのが利。助けを立てるのに利あり。|進みあぐね、馬車が戻る。敵ではなく婚姻を求めている。女は貞を守り十年で嫁ぐ。|鹿を追うのに案内人なく林中に入る。君子は見切りをつける。行けば恥。|乗り馬が進まない。婚姻を求めて行けば吉。|恵みが行き渡らない。小事は吉、大事は凶。|乗り馬が進まず、涙を流して血が出る。
+通じる。我が童蒙を求めるのではなく、童蒙が我を求める。初めの占いは告げ、再三は瀆れる。正しきに利あり。|蒙を啓く。枷を外すことに利あり。進めば恥。|蒙を包容して吉。妻を迎えて吉。子が家を治める。|金に目が眩む女を娶ってはならない。利なし。|蒙に困る。恥。|童蒙。吉。|蒙を撃つ。寇となるのは利ならず、寇を防ぐのに利あり。
+孚あり、光り通じ、正しくして吉。大川を渡るのに利あり。|郊で待つ。恒を保てば咎なし。|砂地で待つ。小さな非難があるが終わりは吉。|泥で待つ。寇を招く。|血の中で待つ。穴から出る。|酒食で待つ。正しくして吉。|穴に入る。招かれざる客が三人来る。敬えば終わりは吉。
+孚あるも塞がる。中は吉、終われば凶。大人に見えるに利あり、大川を渡るのは不利。|事を長引かせない。小さな非難はあるが終わりは吉。|訟に勝てず逃げ帰る。邑人は三百戸で災いなし。|古い徳で食む。貞しくして厲、終わりは吉。王事に従うが成しとげない。|訟に勝てず、戻って命に従い改める。安んじて貞しくして吉。|訟えて大いに吉。|帯を賜っても、朝のうちに三度奪われる。
+貞しく、丈人なら吉で咎なし。|軍は律をもって出る。律が悪ければ凶。|軍中にあって吉、咎なし。王が三度命を賜る。|軍が屍を載せる。凶。|軍は退いて宿る。咎なし。|田に禽あり。命を執れば咎なし。長子が軍を率い、弟子が屍を載せれば貞しくても凶。|大君が命を下し、国を開き家を承ける。小人は用いるな。
+吉。改めて筮し、元永貞なら咎なし。安んじない者が来る。後れる夫は凶。|孚あって比す。咎なし。満ちた缶のように孚があれば、終に他の吉が来る。|内から比す。貞しくして吉。|比す相手が人でない。|外に比す。貞しくして吉。|顕らかに比す。王は三方から獣を追い、前の禽を逃す。邑人は戒められず、吉。|比すのに首がない。凶。
+通じる。密雲あるも雨降らず、我が西郊より。|道に復る。何の咎あらん。吉。|引かれて復る。吉。|車の輻が脱ける。夫婦が反目する。|孚あり。血去り惕れ出る。咎なし。|孚あって攣如。富を隣と分かつ。|既に雨降り既に止む。徳を尊び載せる。婦は貞しくても厲。月が望に近い。君子が征けば凶。
+虎の尾を履むも人を咬まず。通じる。|素のまま履む。往けば咎なし。|道は坦々。幽人は貞しくして吉。|眇で見、跛で履む。虎の尾を履み人を咬む。凶。武人が大君となる。|虎の尾を履む。恐れ慎めば終には吉。|決断して履む。貞しくても厲。|履んだ跡を顧み、吉凶を考える。元に返れば大吉。
+小さきが往き大いなるが来る。吉で通じる。|茅を抜けば根が連なる。仲間と共に進めば吉。|荒れ地も包容し、大河も渡る。遠くを捨てず、私党を組まず、中道を得る。|平らかで陂かないものはなく、往って復らないものはない。艱難でも貞しければ咎なし。食に福あり。|翩翩として富まず、隣と共にする。戒めずとも孚あり。|帝乙が妹を嫁がせる。福あり、元吉。|城が濠に復る。軍を用いてはならない。邑から命を告げる。貞しくても吝。
+否は人の道に非ず。君子の貞に利あらず。大が往き小が来る。|茅を抜けば根が連なる。貞しくして吉、通じる。|包み承ける。小人は吉、大人は否で通じる。|恥を包む。|命あれば咎なし。仲間も福に麗く。|否を休める。大人は吉。亡びるか亡びるかと、桑の苞に繋ぐ。|否を傾ける。先は否、後は喜。
+人と野に同じくす。通じる。大川を渡るのに利あり。君子の貞に利あり。|門で人と同じくす。咎なし。|宗族と同じくす。吝。|兵を草むらに伏せ、高陵に登る。三年興らず。|城壁に乗るが攻められない。吉。|人と同じくし、先は号泣し後は笑う。大軍で勝ち、相遇う。|郊で人と同じくす。悔いなし。
+大いに通じる。|害に交わらず、咎なし。艱難すれば咎なし。|大車で載せる。往くところあり、咎なし。|公が天子に饗を受ける。小人には不可。|盛んさを匪にする。咎なし。|孚あって交わり威如たり。吉。|天より祐く。吉で利ならざるなし。
+通じる。君子は終わりあり。|謙謙する君子。大川を渡るに用いて吉。|鳴謙。貞しくして吉。|労謙する君子。終わりあり、吉。|利ならざるなし。謙を揮う。|富まず隣を用いる。侵伐に利あり。利ならざるなし。|鳴謙。師を行い、邑国を征するに利あり。
+侯を立て師を行うに利あり。|鳴予。凶。|石に介す。終日を待たず、貞しくして吉。|上を盱いて予す。悔いあり。遅れれば悔いあり。|由りて予す。大いに得る所あり。疑うな。朋が簪のように集う。|貞しくして疾む。恒に死なず。|冥予。成っても変わる。咎なし。
+元いに通じ、貞しきに利あり。咎なし。|官に変あり。貞しくして吉。門を出て交われば功あり。|小子に繋ぎ、丈夫を失う。|丈夫に繋ぎ、小子を失う。随って求むれば得る。居るに貞しきに利あり。|随って獲る。貞しくても凶。孚あり道にあり明らかなら、何の咎あらん。|嘉に孚あり。吉。|拘えて係ぎ、乃ち従い維ぐ。王が西山に亨す。
+元いに通じる。大川を渡るに利あり。甲に先立つこと三日、甲に後れること三日。|父の蠱を幹す。子がいれば父は咎なし。厲だが終わりは吉。|母の蠱を幹す。貞にするべからず。|父の蠱を幹す。小さな悔いあり、大きな咎なし。|父の蠱を裕にする。往けば吝。|父の蠱を幹す。誉れを用いる。|王侯に仕えず、その事を高尚にする。
+元いに通じ、貞しきに利あり。八月に至れば凶あり。|咸く臨む。貞しくして吉。|咸く臨む。吉、利ならざるなし。|甘く臨む。利なし。既に憂えれば咎なし。|至って臨む。咎なし。|知をもって臨む。大君の宜し。吉。|敦く臨む。吉、咎なし。
+盥いて薦めず。孚あって顒若たり。|童観。小人は咎なし、君子は吝。|闚い観る。女の貞に利あり。|我が生を観て進退する。|国の光を観る。王に賓たるに利あり。|我が生を観る。君子は咎なし。|其の生を観る。君子は咎なし。
+通じる。獄を用いるに利あり。|校を履いて趾を滅す。咎なし。|膚を噬んで鼻を滅す。咎なし。|腊肉を噬んで毒に遇う。小吝、咎なし。|乾肺を噬んで金の矢を得る。艱貞に利あり。吉。|乾肉を噬んで黄金を得る。貞しくして厲、咎なし。|校を荷って耳を滅す。凶。
+通じる。小さく往くところに利あり。|その趾を賁る。車を舎てて徒す。|その須を賁る。|賁如濡如。永く貞しければ吉。|賁如皤如。白馬翰如。寇ではなく婚媾。|丘園を賁る。束帛戔戔。吝だが終わりは吉。|白く賁る。咎なし。
+往くところに利あらず。|牀を剥して足に及ぶ。貞しさを滅ぼす。凶。|牀を剥して辨に及ぶ。貞しさを滅ぼす。凶。|剥す。咎なし。|牀を剥して膚に及ぶ。凶。|魚を貫き、宮人に寵される。利ならざるなし。|碩果は食われず。君子は輿を得、小人は廬を剥す。
+通じる。出入り疾なし。朋来たりて咎なし。その道に反復し、七日で来復す。往くところあるに利あり。|遠からずして復る。悔いに至らず。元吉。|休く復る。吉。|頻りに復る。厲だが咎なし。|中行して独り復る。|敦く復る。悔いなし。|迷い復る。凶、災眚あり。軍を用いれば終に大敗し、国君に凶。十年経っても征けない。
+元いに通じ、貞しきに利あり。その正しくなければ眚あり。往くところあるに利あらず。|无妄で往けば吉。|耕さずして穫、菑せずして畬す。往くところあるに利あり。|无妄の災。牛を繋いでおくと、通りがかりの人が得る。邑人の災い。|貞しくすべし。咎なし。|无妄の疾。薬なくして喜びあり。|无妄で行けば眚あり。利するところなし。
+貞しきに利あり。家で食せず吉。大川を渡るに利あり。|厲うきことあり。已めるに利あり。|輿の輹を説く。|良馬が逐う。艱貞に利あり。日に輿衛を閑う。往くところあるに利あり。|童牛の牿。元吉。|豶豕の牙。吉。|天の衢を何う。亨る。
+貞しくして吉。頤を観、自ら口実を求める。|汝の霊亀を舎て、我を観て頤を朶る。凶。|顛に頤う。経に払き、丘に頤う。征けば凶。|頤に払く。貞しくても凶。十年用いるな。利するところなし。|顛に頤う。吉。虎視眈眈、その欲逐逐。咎なし。|経に払く。貞に居れば吉。大川を渡ってはならない。|由りて頤う。厲だが吉。大川を渡るに利あり。
+棟が撓む。往くところあるに利あり。通じる。|藉くに白茅を用いる。咎なし。|枯れ楊が稊を生じる。老夫が女妻を得る。利ならざるなし。|棟が撓む。凶。|棟が隆い。吉。他があれば吝。|枯れ楊が華を生じる。老婦が士夫を得る。咎もなく誉れもない。|渉って頂を滅す。凶。咎なし。
+孚あり。心は通じ、往けば尚ばれる。|坎に習い、坎窞に入る。凶。|坎に険あり。求めて小しく得る。|来るも往くも坎坎。険にして枕す。坎窞に入る。用いるな。|樽酒と簋に貳を用い、約を牖から納める。終には咎なし。|坎は盈たず、既に平らかになる。咎なし。|徽纆で係ぎ、叢棘に寘く。三年得られず。凶。
+貞しきに利あり、通じる。牝牛を畜えば吉。|履むこと錯然。これを敬えば咎なし。|黄離。元吉。|日昃の離。缶を鼓って歌わなければ、耋を嗟いて凶。|突如として来如たり。焚如、死如、棄如。|涕が沱のように出て、戚みて嗟く。吉。|王が用いて出征する。嘉ありて首を折り、醜でない者を獲る。咎なし。
+通じる。貞しきに利あり。女を娶れば吉。|拇に咸ず。|腓に咸ず。凶。居れば吉。|股に咸ず。随うことを執る。往けば吝。|貞しくして吉、悔い亡ぶ。憧憧と往来すれば、朋が爾の思いに従う。|脢に咸ず。悔いなし。|輔頰舌に咸ず。
+通じる。咎なし。貞しきに利あり。往くところあるに利あり。|深く恒を求める。貞しくても凶。利するところなし。|悔い亡ぶ。|その徳を恒にしない。或いは羞を承ける。貞しくても吝。|田に禽なし。|その徳を恒にする。貞しくすれば婦人は吉、夫子は凶。|恒を振う。凶。
+通じる。小さきは貞しきに利あり。|遯の尾。厲。往くところあるなかれ。|黄牛の革で執える。説くことができない。|係ぎ遯る。疾んで厲。臣妾を畜えば吉。|好んで遯れる。君子は吉、小人は否。|嘉く遯れる。貞しくして吉。|肥に遯れる。利ならざるなし。
+貞しきに利あり。|趾に壮んなり。征けば凶。孚あり。|貞しくして吉。|小人は壮を用い、君子は罔を用いる。貞しくても厲。羝羊が藩に触れ、その角を羸しむ。|貞しくして吉、悔い亡ぶ。藩が決けて羸まず。大輿の輹に壮んなり。|易に羊を喪う。悔いなし。|羝羊が藩に触れ、退けず遂げず。利するところなし。艱なれば吉。
+康侯が馬を蕃く賜され、昼日に三度接せられる。|晋如、摧如。貞しくして吉。孚とされなくても、裕であれば咎なし。|晋如、愁如。貞しくして吉。この介福を王母より受ける。|衆が允とする。悔い亡ぶ。|晋如、鼫鼠の如し。貞しくても厲。|悔い亡ぶ。失得を恤えず。往けば吉、利ならざるなし。|その角に晋む。邑を伐つのみ。厲だが吉、咎なし。貞しくても吝。
+艱貞に利あり。|明夷で飛び、その翼を垂れる。君子は行き、三日食わず。往くところあれば主人に言あり。|明夷で左股を夷む。用て拯う馬が壮んなら吉。|明夷で南に狩り、その大首を得る。疾く貞しくしてはならない。|左腹に入り、明夷の心を獲て、門庭を出る。|箕子の明夷。貞しきに利あり。|明らかならず晦し。初めは天に登り、後には地に入る。
+女の貞に利あり。|家を閑ぐ。悔い亡ぶ。|遂げるところなし。中饋に在り。貞しくして吉。|家人が嗃嗃たり。悔いて厲だが吉。婦子が嘻嘻たれば終には吝。|家を富ます。大吉。|王が家を有つに仮る。恤えるなかれ、吉。|孚あり威如たり。終には吉。
+小事は吉。|悔い亡ぶ。馬を喪うも逐うなかれ、自ら復る。悪人に見えても咎なし。|主に巷で遇う。咎なし。|輿が曳かれ、牛が掣かれ、その人は天され劓される。初めなく終わりあり。|睽き孤なり。元夫に遇い、交々孚あり。厲だが咎なし。|悔い亡ぶ。宗が膚を噬む。往けば何の咎あらん。|睽き孤なり。豕が塗を負い、鬼を一車に載せるのを見る。先には弧を張り、後には弧を説く。寇ではなく婚媾。往きて雨に遇えば吉。
+西南に利あり、東北に利なし。大人に見えるに利あり。貞しくして吉。|往けば蹇み、来れば誉れあり。|王臣が蹇蹇たり。躬の故ではない。|往けば蹇み、来れば反る。|往けば蹇み、来れば連なる。|大いに蹇む。朋が来る。|往けば蹇み、来れば碩い。吉。大人に見えるに利あり。
+西南に利あり。往くところがなければ来復して吉。往くところがあれば夙くして吉。|咎なし。|田で三狐を獲、黄矢を得る。貞しくして吉。|負い且つ乗る。寇を致す。貞しくても吝。|而の拇を解く。朋が至り斯に孚あり。|君子が維れ解く有り。吉。小人に孚あり。|公が隼を高墉の上で射る。獲る。利ならざるなし。
+孚あれば元吉、咎なし。貞しかるべし。往くところあるに利あり。二簋を用いて享すべし。|事を已めて遄やかに往く。咎なし。酌んで之を損す。|貞しきに利あり。征けば凶。損せずして之を益す。|三人行けば一人を損し、一人行けば其の友を得る。|その疾を損す。遄やかにして喜びあり。咎なし。|或いは之に益す。十朋の亀も違えず。元吉。|損せずして之を益す。咎なし。貞しくして吉。往くところあるに利あり。臣を得て家なし。
+往くところあるに利あり。大川を渡るに利あり。|大作を為すに利あり。元吉で咎なし。|或いは之に益す。十朋の亀も違えず。永く貞しくして吉。王が帝に享す。吉。|凶事に之を益す。咎なし。孚あり中行し、公に告げて圭を用いる。|中行し公に告げて従われる。依りて国を遷すに利あり。|孚あり恵心。問うなかれ元吉。孚あり我が徳を恵む。|之に益す者なく、或いは之を撃つ。心を立てること恒ならず。凶。
+王庭で揚げる。孚号し厲あり。邑に告げる。戎に即くに利あらず。往くところあるに利あり。|趾に壮んなり。往きて勝たなければ咎となる。|惕れ号ぶ。莫夜に戎あり。恤えるなかれ。|頄に壮んなり。凶あり。君子は夬夬として独り行き、雨に遇い濡れて慍あり。咎なし。|臀に膚なく、その行くこと次且たり。羊を牽けば悔い亡ぶ。言を聞いても信じない。|莧陸を夬夬とす。中行して咎なし。|号ぶこと無し。終に凶あり。
+女が壮んなり。女を娶るなかれ。|金柅に繋ぐ。貞しくして吉。往くところあれば凶を見る。羸豕が孚として蹢躅する。|包に魚あり。咎なし。賓に利あらず。|臀に膚なく、その行くこと次且たり。厲だが大きな咎なし。|包に魚なし。起てば凶。|杞で瓜を包む。章を含む。天より隕つること有り。|その角に姤う。吝だが咎なし。
+通じる。王が廟に仮る。大人に見えるに利あり。貞しきに利あり。大牲を用いて吉。往くところあるに利あり。|孚あるも終わらず、乃ち乱れ乃ち萃まる。号べば一握して笑いとなる。恤えるなかれ。往けば咎なし。|引けば吉、咎なし。孚あれば乃ち禴を用いるに利あり。|萃如、嗟如。利するところなし。往けば咎なし。小しく吝。|大吉で咎なし。|萃まるに位あり。咎なし。孚とされなくても、元永貞なら悔い亡ぶ。|齎咨涕洟す。咎なし。
+元いに通じる。大人に見えるのに恤えるなかれ。南征して吉。|允に升る。大吉。|孚あれば乃ち禴を用いるに利あり。咎なし。|虚邑に升る。|王が岐山に享す。吉で咎なし。|貞しくして吉。階に升る。|冥に升る。息まざる貞に利あり。
+通じる。貞しくして大人は吉、咎なし。言うことあるも信じられない。|臀が株木に困しむ。幽谷に入り、三歳まで覿えない。|酒食に困しむ。朱紱が方に来る。享祀に用いるに利あり。征けば凶で咎なし。|石に困しみ、蒺藜に拠る。その宮に入り、其の妻を見ない。凶。|来ること徐徐たり。金車に困しむ。吝だが終わりあり。|劓刖される。赤紱に困しむ。乃ち徐に説びあり。祭祀に用いるに利あり。|葛藟に困しみ、臲卼にあり。動けば悔いありと曰う。悔いあれば征きて吉。
+邑を改めるも井は改めない。喪うなく得るなし。往来して井井たり。汔ど至らんとして未だ繘を井に羸れず、その瓶を羸る。凶。|井が泥で食えない。旧井に禽なし。|井谷で鮒に射ぐ。甕が敝れて漏れる。|井が渫われても食われない。我が心の惻みとなる。用て汲むべし。王明らかなら並びに福を受ける。|井を甃く。咎なし。|井が冽くして寒泉を食う。|井を收めて幕うなかれ。孚あり、元吉。
+已日にして乃ち孚とされる。元いに通じ、貞しきに利あり。悔い亡ぶ。|黄牛の革で鞏める。|已日にして乃ち革める。征けば吉で咎なし。|征けば凶。貞しくても厲。革の言が三度就れば孚あり。|悔い亡ぶ。孚あり、命を改めて吉。|大人は虎変す。占わずとも孚あり。|君子は豹変し、小人は面を革める。征けば凶。居りて貞しくすれば吉。
+元吉。通じる。|鼎が趾を顛す。否を出すに利あり。妾を得てその子を得る。咎なし。|鼎に実あり。我が仇に疾あり。我に即くこと能わず。吉。|鼎の耳が革まり、その行くこと塞がる。雉膏が食われない。方に雨降れば悔いを虧き、終には吉。|鼎の足が折れ、公の餗を覆す。その形は渥い。凶。|鼎に黄耳と金鉉あり。貞しきに利あり。|鼎に玉鉉あり。大吉で利ならざるなし。
+通じる。震が来て虩虩たり。笑言啞啞たり。震が百里を驚かすも、匕鬯を喪わない。|震が来て虩虩たり。後には笑言啞啞たり。吉。|震が来て厲。億く貝を喪い、九陵に躋る。逐うなかれ、七日で得る。|震が蘇蘇たり。震いて行けば眚なし。|震が遂に泥む。|震が往来して厲。億く喪うことなし。事あり。|震が索索たり。視ること矍矍たり。征けば凶。震がその躬に于さず、その隣に于さば咎なし。婚媾に言あり。
+その背に艮まり、その身を獲ず。その庭を行き、その人を見ず。咎なし。|その趾に艮まる。咎なし。永く貞しきに利あり。|その腓に艮まる。拯けず、その随に従う。その心は快からず。|その限に艮まる。その夤を列く。厲、心を薫く。|その身に艮まる。咎なし。|その輔に艮まる。言に序あり。悔い亡ぶ。|敦く艮まる。吉。
+女が帰ぐに吉。貞しきに利あり。|鴻が干に漸む。小子は厲、言あれども咎なし。|鴻が磐に漸む。飲食衎衎たり。吉。|鴻が陸に漸む。夫が征きて復らず、婦が孕んで育てず。凶。寇を禦ぐに利あり。|鴻が木に漸む。或いは其の桷を得る。咎なし。|鴻が陵に漸む。婦は三歳孕まないが、終に之に勝つ者なし。吉。|鴻が陸に漸む。その羽を儀とすべし。吉。
+征けば凶。利するところなし。|妹を帰ぐに娣を以てす。跛が履むことができる。征けば吉。|眇が視ることができる。幽人の貞に利あり。|妹を帰ぐに須を以てす。反って娣を以てす。|妹を帰ぐこと期を愆る。遅く帰ぐにも時あり。|帝乙が妹を帰がせる。その君の袂は、その娣の袂の良きに如かない。月が望に幾し。吉。|女が筐を承けて実なく、士が羊を刲いて血なし。利するところなし。
+通じる。王が之に仮る。憂えるなかれ、日中に宜し。|その配主に遇う。旬しても咎なし。往けば尚ばれる。|その蔀を豊にする。日中に斗を見る。往けば疑疾を得る。孚をもって発若すれば吉。|その沛を豊にする。日中に沬を見る。その右肱を折る。咎なし。|その蔀を豊にする。日中に斗を見る。その夷主に遇う。吉。|章を来す。慶誉あり。吉。|その屋を豊にし、その家を蔀う。その戸を闚うに闃として人なし。三歳覿えない。凶。
+小しく通じる。旅は貞しくして吉。|旅して瑣瑣たり。斯れその災いを取る所なり。|旅して次に即く。その資を懐き、童僕の貞を得る。|旅してその次を焚く。その童僕を喪う。貞しくても厲。|旅して処る。その資斧を得る。我が心は快からず。|雉を射て一矢で亡う。終には誉れをもって命を得る。|鳥がその巣を焚く。旅人は先に笑い後に号び咷ぶ。易に牛を喪う。凶。
+小しく通じる。往くところあるに利あり。大人に見えるに利あり。|進退す。武人の貞に利あり。|巽って牀下に在り。史巫を用いること紛若たり。吉で咎なし。|頻りに巽る。吝。|悔い亡ぶ。田で三品を獲る。|貞しくして吉、悔い亡ぶ。利ならざるなし。初めなく終わりあり。庚に先立つこと三日、庚に後れること三日。吉。|巽って牀下に在り。その資斧を喪う。貞しくても凶。
+通じる。貞しきに利あり。|和して兌ぶ。吉。|孚として兌ぶ。吉、悔い亡ぶ。|来って兌ぶ。凶。|商りて兌ぶ、未だ寧からず。疾を介けば喜びあり。|剥に孚あり。厲あり。|引きて兌ぶ。
+通じる。王が廟に仮る。大川を渡るに利あり。貞しきに利あり。|用て拯うに馬が壮んなら吉。|渙する時にその机に奔る。悔い亡ぶ。|その躬を渙す。悔いなし。|その群を渙す。元吉。渙して丘あり。夷の思うところにあらず。|渙してその大号を汗のように出す。渙して王居す。咎なし。|その血を渙す。去り逖く出る。咎なし。
+通じる。苦節は貞にすべからず。|戸庭を出ない。咎なし。|門庭を出ない。凶。|節せず若きは、則ち嗟若たり。咎なし。|安んじて節する。通じる。|甘んじて節する。吉。往けば尚ばれる。|苦く節する。貞しくても凶。悔い亡ぶ。
+豚魚にも吉。大川を渡るに利あり。貞しきに利あり。|虞れれば吉。他あれば燕からず。|鳴鶴が陰に在り。その子がこれに和する。我に好爵あり、吾は爾とこれを靡つ。|敵を得る。或いは鼓し、或いは罷め、或いは泣き、或いは歌う。|月が望に幾し。馬匹亡ぶ。咎なし。|孚あり攣如たり。咎なし。|翰音が天に登る。貞しくても凶。
+通じる。貞しきに利あり。小事に可、大事に不可。飛鳥がその音を遺す。上るに宜しからず、下るに宜し。大吉。|飛鳥は以て凶。|その祖を過ぎ、その妣に遇う。その君に及ばず、その臣に遇う。咎なし。|過ぎずして之を防ぐ。従って或いは之を戕う。凶。|咎なし。過ぎずして之に遇う。往けば厲、必ず戒めよ。永く貞にするな。|密雲あるも雨降らず、我が西郊より。公が弋して穴に在るものを取る。|遇わずして之を過ぎる。飛鳥が之に離る。凶。是を災眚という。
+亨るは小。貞しきに利あり。初めは吉、終わりは乱れる。|その輪を曳き、その尾を濡らす。咎なし。|婦がその茀を喪う。逐うなかれ、七日で得る。|高宗が鬼方を伐ち、三年で克つ。小人は用いるな。|繻に衣袽あり。終日戒む。|東隣が牛を殺すは、西隣の禴祭の実に福を受けるに如かず。|その首を濡らす。厲。
+通じる。小狐が汔ど済らんとして、その尾を濡らす。利するところなし。|その尾を濡らす。吝。|その輪を曳く。貞しくして吉。|未だ済らず。征けば凶。大川を渡るに利あり。|貞しくして吉、悔い亡ぶ。震って用て鬼方を伐つ。三年で大国に賞される。|貞しくして吉、悔いなし。君子の光あり。孚あり。吉。|飲酒に孚あり。咎なし。その首を濡らせば孚を失う。
+`.trim().split("\n").map(l => l.split("|"));
+  const YONG = { 1: "用九: 群龍首なし。吉。", 2: "用六: 永く正しくあれば利あり。" };
+  function hexReading(r){
+    const idx = r.chg.map((c, i) => (c ? i : -1)).filter(i => i >= 0);
+    const n = idx.length, un = [0, 1, 2, 3, 4, 5].filter(i => !r.chg[i]);
+    const yao = (h, i, tag) => ({ label: h.name + " " + LINE_NAME[i], text: HXT[h.no - 1][i + 1], tag });
+    const kj = (h, tag) => ({ label: h.name + " 卦辞", text: HXT[h.no - 1][0], tag });
+    if (n === 0) return { rule: "変爻なし。本卦の卦辞で読む。", items: [kj(r.hex, "主")] };
+    if (n === 1) return { rule: "変爻1つ。本卦のその爻辞で読む。", items: [yao(r.hex, idx[0], "主")] };
+    if (n === 2) return { rule: "変爻2つ。本卦の2つの爻辞を読み、上の爻を主とする。", items: [yao(r.hex, idx[1], "主"), yao(r.hex, idx[0], "従")] };
+    if (n === 3) return { rule: "変爻3つ。本卦と之卦の卦辞を併せて読み、本卦を主とする。", items: [kj(r.hex, "主"), kj(r.alt, "従")] };
+    if (n === 4) return { rule: "変爻4つ。之卦の変じない2つの爻辞を読み、下の爻を主とする。", items: [yao(r.alt, un[0], "主"), yao(r.alt, un[1], "従")] };
+    if (n === 5) return { rule: "変爻5つ。之卦の変じない爻辞で読む。", items: [yao(r.alt, un[0], "主")] };
+    if (YONG[r.hex.no]) return { rule: "六爻すべてが変爻。" + (r.hex.no === 1 ? "乾は用九" : "坤は用六") + "で読む。", items: [{ label: r.hex.no === 1 ? "用九" : "用六", text: YONG[r.hex.no].replace(/^用[九六]: /, ""), tag: "主" }] };
+    return { rule: "六爻すべてが変爻。之卦の卦辞で読む。", items: [kj(r.alt, "主")] };
+  }
+  function hexAll(h){ return { kj: HXT[h.no - 1][0], yao: HXT[h.no - 1].slice(1) }; }
+
+  /* ===== 姓名判断(熊崎式・霊数あり) ===== */
+  const SURI = `
+大吉|頭領運|万物の始まり。指導力で大きく発展する。
+凶|分離運|分裂・不安定。協力を得にくく、根気が要る。
+大吉|名誉運|才知と名誉に恵まれ、成功を収める。
+凶|破壊運|苦労や停滞が多い。忍耐が試される。
+大吉|福寿運|調和と福徳。心身ともに安定する。
+大吉|安定運|先祖の徳に恵まれ、穏やかに栄える。
+吉|独立運|意志が強く、独立心で道を拓く。
+吉|発展運|努力と忍耐で確実に発展する。
+凶|窮乏運|才能はあるが報われにくい。浮き沈みが大きい。
+凶|空虚運|努力が実りにくい。堅実さが鍵。
+大吉|挽回運|衰えた運を立て直す力がある。
+凶|薄弱運|意志が揺らぎやすい。支えを得ること。
+大吉|智謀運|知恵と才覚で成功する。
+凶|破兆運|孤立しやすい。慎重な行動が必要。
+大吉|福寿運|人徳があり、人に恵まれて安定する。
+大吉|徳望運|人望を集め、上に立つ運。
+吉|突破運|強い意志で困難を突破する。頑固さに注意。
+吉|発展運|意志と実行力で成し遂げる。
+凶|障害運|才能があっても障害が多い。
+凶|破滅運|挫折や変動が多い。堅実さを心がける。
+大吉|頭領運|独立して人の上に立つ。
+凶|薄幸運|秋草の運。努力が実りにくい。
+大吉|壮麗運|勢いがあり、大きな成功を収める。
+大吉|掘起運|無から財を築く。努力が実る。
+吉|英俊運|才能と個性で道を拓く。
+半吉|変怪運|波乱に富む。個性が強く、浮沈がある。
+半吉|中折運|才能はあるが挫折しやすい。
+凶|遭難運|波乱が多い。慎重に。
+吉|智謀運|知恵と行動力に恵まれる。
+半吉|浮沈運|成功と失敗の波が大きい。
+大吉|統領運|智勇を備え、人を率いる。
+大吉|僥倖運|思わぬ幸運に恵まれる。
+大吉|昇天運|勢いがあり、大きく飛躍する。
+凶|破家運|災難や苦労が続きやすい。
+吉|安泰運|穏やかで平和。堅実に伸びる。
+半吉|波乱運|義侠心が強いが波乱が多い。
+大吉|独立運|誠実で信用を築き、成功する。
+半吉|福禄運|芸術・学問に才能。あと一歩の粘りが要る。
+大吉|富貴運|財運と名誉に恵まれる。
+半吉|変転運|才能はあるが変動が多い。
+大吉|高徳運|徳と実力を備え、成功する。
+半吉|十芸運|多才だが、絞らないと大成しにくい。
+半吉|散財運|外見は華やかだが、内面に不安が残る。
+凶|煩悶運|悩みや苦労が多い。
+大吉|顕達運|順風満帆。志が達成される。
+凶|浪費運|努力が実りにくく、財を守りにくい。
+大吉|開花運|努力が花開く。周囲の助けを得る。
+大吉|智謀運|知恵で人を導く。指導者向き。
+半吉|転変運|吉凶が入れ替わりやすい。
+半吉|小成運|成功と失敗が交互に来る。
+半吉|盛衰運|盛衰の波がある。晩年は安定。
+大吉|先見運|先見の明で成功する。
+半吉|内憂運|外は順調でも内に悩みを抱えやすい。
+凶|多難運|苦労が多い。忍耐で乗り越える。
+半吉|和順運|表面は順調。油断は禁物。
+凶|消極運|意欲が弱まりやすい。
+吉|寒梅運|困難を経て、後に花開く。
+半吉|晩成運|苦労の後に安定する。
+凶|挫折運|意志が弱まりやすい。
+凶|暗黒運|迷いが多い。方向性を定めること。
+半吉|名誉運|名誉と財に恵まれるが、傲りに注意。
+凶|衰退運|不安や孤立に注意。
+大吉|豊楽運|繁栄し、幸福に恵まれる。
+凶|沈浮運|浮き沈みが激しい。
+大吉|富貴運|幸運に恵まれ、財と名誉を得る。
+凶|進退窮|進むも退くも難しい。
+大吉|独立運|自力で道を拓き、財を築く。
+大吉|名誉運|思慮深く、堅実に成功する。
+凶|不安運|不安定で落ち着きにくい。
+凶|惨淡運|暗い運。慎重に。
+半吉|平凡運|平凡ながら安定。
+凶|苦難運|一見順調でも後に苦労する。
+半吉|平安運|穏やかで実りあり。
+凶|沈没運|才能があっても報われにくい。
+半吉|保守運|守りに徹すれば安定する。
+凶|離別運|人間関係の変動に注意。
+半吉|前吉後凶運|前半は順調、後半に波乱。
+半吉|晩苦運|前半は良いが後半に苦労が出る。
+凶|挫折運|意志が弱まり、迷いやすい。
+凶|隠退運|運勢が停滞しやすい。
+大吉|還元運|すべてが元に戻り、新たに始まる。最大吉数。
+`.trim().split("\n").map(l => l.split("|"));
+  function suri(n){ let k = n; while (k > 81) k -= 80; return { n: k, rank: SURI[k - 1][0], name: SURI[k - 1][1], text: SURI[k - 1][2] }; }
+  function gokaku(S, N){
+    const a = S.length, b = N.length, sum = arr => arr.reduce((x, y) => x + y, 0);
+    const sS = sum(S), sN = sum(N);
+    const ten = sS + (a === 1 ? 1 : 0), chi = sN + (b === 1 ? 1 : 0), jin = S[a - 1] + N[0];
+    return { ten, jin, chi, gai: ten + chi - jin, sou: sS + sN };
+  }
+  const GOGYO = ["木","火","土","金","水"];
+  function gogyo(n){ const d = n % 10; return d === 1 || d === 2 ? 0 : d === 3 || d === 4 ? 1 : d === 5 || d === 6 ? 2 : d === 7 || d === 8 ? 3 : 4; }
+  function sansaiRel(a, b){
+    const r = mod(b - a, 5);
+    return r === 0 ? "比和(同じ五行。安定・調和)" : r === 1 ? "相生(上から下へ恵みが流れる。順調)" : r === 4 ? "逆生(下から上へ力を注ぐ。努力型)" : "相剋(摩擦が生じやすい。無理や不調和に注意)";
+  }
+
+  /* ===== 手相(自己判定) ===== */
+  const PALM = {
+    lines: [
+      { name: "生命線", hint: "親指の付け根を囲む線", opts: [
+        ["長くくっきり", "体力・生命力が強く、活動的。"], ["短い・薄い", "無理をすると疲れやすい。休息を意識する時期(寿命の長短とは無関係)。"],
+        ["途切れ・島がある", "生活や環境の変化が起きやすい。転機の暗示。"], ["二重(並行する線)", "回復力が高く、支えてくれる人に恵まれる。"] ] },
+      { name: "頭脳線", hint: "親指と人差し指の間から横に伸びる線", opts: [
+        ["長く手のひらを横切る", "思考が深く、慎重で分析的。"], ["短め", "判断が早く実務的。"],
+        ["下向きに大きく下がる", "想像力・感受性が豊か。芸術的な感性。"], ["まっすぐ水平", "現実的で論理的。"] ] },
+      { name: "感情線", hint: "小指側から人差し指方向へ伸びる線", opts: [
+        ["人差し指の下まで長く伸びる", "情が深く、愛情表現が豊か。"], ["短い", "感情を表に出さず、さっぱりしている。"],
+        ["人差し指と中指の間で終わる", "愛情と理性のバランスがよい。"], ["鎖状・乱れがある", "感情の波が大きく、繊細。"] ] },
+      { name: "運命線", hint: "手首から中指へ縦に伸びる線", opts: [
+        ["中指に向かってまっすぐ", "目標が明確で、仕事運が安定。"], ["薄い・ない", "自分の意思で道を切り開くタイプ。環境に縛られにくい。"],
+        ["途中から始まる", "中年以降に運が開ける。"], ["途切れがち", "職や環境の変化が多い。"] ] },
+      { name: "太陽線", hint: "薬指の下へ伸びる縦の線", opts: [
+        ["はっきりある", "才能が認められやすく、人気運・金運に恵まれる。"], ["薄い・ない", "これから育てる才能。努力で開ける。"],
+        ["複数ある", "多才で、複数の分野で活躍する。"] ] },
+      { name: "結婚線", hint: "小指の付け根と感情線の間の短い横線", opts: [
+        ["1本くっきり", "一途で安定した縁。"], ["複数ある", "恋愛経験や縁が豊か。"],
+        ["上向き", "仕事や自立を優先する傾向。"], ["下向き", "相手に尽くす傾向。"], ["薄い・ない", "縁は遅め、または形にとらわれない。"] ] },
+      { name: "健康線", hint: "小指の下から生命線方向へ斜めに伸びる線", opts: [
+        ["ない", "健康運は良好とされる。"], ["はっきりある", "健康管理に敏感。無理を控える暗示。"] ] }
+    ],
+    mounts: [
+      { name: "金星丘", hint: "親指の付け根", opts: [["ふっくら", "愛情深く、活力にあふれる。"], ["平ら", "穏やかで淡々としている。"], ["くぼみ", "人付き合いは控えめ。"]] },
+      { name: "木星丘", hint: "人差し指の付け根", opts: [["ふっくら", "向上心と野心が強い。"], ["平ら", "自然体で無理をしない。"], ["くぼみ", "謙虚で控えめ。"]] },
+      { name: "土星丘", hint: "中指の付け根", opts: [["ふっくら", "慎重で責任感が強い。"], ["平ら", "バランスがよい。"], ["くぼみ", "気楽で楽観的。"]] },
+      { name: "太陽丘", hint: "薬指の付け根", opts: [["ふっくら", "才能と華があり、注目されやすい。"], ["平ら", "堅実で目立ちすぎない。"], ["くぼみ", "地道に力を蓄えるタイプ。"]] },
+      { name: "水星丘", hint: "小指の付け根", opts: [["ふっくら", "商才とコミュニケーション力に恵まれる。"], ["平ら", "誠実で安定した対人関係。"], ["くぼみ", "口数は少なめ。"]] },
+      { name: "月丘", hint: "手のひら小指側の下部", opts: [["ふっくら", "想像力と直感が豊か。"], ["平ら", "現実的で落ち着いている。"], ["くぼみ", "論理を重んじる。"]] }
+    ]
+  };
+
+  /* ===== ルーン(エルダー・フサルク24文字) ===== */
+  const RUNES = [
+    ["Fehu","フェイヒュー","富・所有・豊かさ。","損失・停滞・浪費。", [[8,4,8,36],[8,14,18,6],[8,24,18,16]]],
+    ["Uruz","ウルズ","力・健康・勇気。","弱さ・停滞・機会の逸失。", [[8,36,8,4],[8,4,18,14],[18,14,18,36]]],
+    ["Thurisaz","スリサズ","防御・試練・衝動。","危険・無防備・衝動的な行動。", [[8,4,8,36],[8,10,18,20],[18,20,8,30]]],
+    ["Ansuz","アンスズ","言葉・助言・知恵。","誤解・伝達の失敗。", [[8,4,8,36],[8,6,18,16],[8,16,18,26]]],
+    ["Raidho","ライゾ","旅・進行・正しい道。","混乱・遅れ・不本意な移動。", [[8,4,8,36],[8,4,18,14],[18,14,8,24],[8,24,18,36]]],
+    ["Kenaz","ケナズ","灯火・創造・知識。","消耗・創造性の枯渇。", [[18,10,8,20],[8,20,18,30]]],
+    ["Gebo","ゲボ","贈り物・交換・調和。", null, [[5,6,19,34],[19,6,5,34]]],
+    ["Wunjo","ウンジョー","喜び・充足・調和。","悲しみ・不調和・疎外。", [[8,4,8,36],[8,4,18,12],[18,12,8,20]]],
+    ["Hagalaz","ハガラズ","突発的な変化・試練。", null, [[6,4,6,36],[18,4,18,36],[6,15,18,25]]],
+    ["Nauthiz","ナウシズ","必要・制約・忍耐。", null, [[12,4,12,36],[6,14,18,24]]],
+    ["Isa","イサ","停止・待機・静けさ。", null, [[12,4,12,36]]],
+    ["Jera","ジェラ","収穫・巡り・時の実り。", null, [[14,4,8,12],[8,12,14,18],[10,22,16,28],[16,28,10,36]]],
+    ["Eihwaz","エイワズ","持久・防御・転換。", null, [[12,4,12,36],[12,4,18,10],[12,36,6,30]]],
+    ["Perthro","パースロ","運命・偶然・秘密。","隠し事・停滞。", [[8,4,8,36],[8,4,17,10],[17,10,17,30],[17,30,8,36]]],
+    ["Algiz","アルギズ","保護・防御・高い意識。","無防備・危険。", [[12,4,12,36],[5,6,12,16],[19,6,12,16]]],
+    ["Sowilo","ソウェル","太陽・成功・活力。", null, [[16,4,8,14],[8,14,16,26],[16,26,8,36]]],
+    ["Tiwaz","ティワズ","勝利・正義・勇気。","敗北・不正・エネルギー不足。", [[12,36,12,4],[5,14,12,4],[19,14,12,4]]],
+    ["Berkano","ベルカナ","誕生・成長・再生。","停滞・家庭の不和。", [[8,4,8,36],[8,4,17,12],[17,12,8,20],[8,20,17,28],[17,28,8,36]]],
+    ["Ehwaz","エワズ","進展・信頼・協力。","不調・急ぎすぎ・不協和。", [[6,4,6,36],[18,4,18,36],[6,4,12,14],[12,14,18,4]]],
+    ["Mannaz","マンナズ","人間・自己・協力。","孤立・自己中心。", [[6,4,6,36],[18,4,18,36],[6,4,18,20],[18,4,6,20]]],
+    ["Laguz","ラグズ","水・直感・流れ。","混乱・直感の鈍り。", [[8,4,8,36],[8,4,18,14]]],
+    ["Ingwaz","インゲズ","完成・豊穣・内なる成長。", null, [[12,6,19,20],[19,20,12,34],[12,34,5,20],[5,20,12,6]]],
+    ["Dagaz","ダガズ","夜明け・変容・突破。", null, [[6,6,6,34],[18,6,18,34],[6,6,18,34],[18,6,6,34]]],
+    ["Othala","オセラ","遺産・故郷・受け継ぐもの。","束縛・損失・閉鎖的。", [[12,4,18,12],[18,12,12,20],[12,20,6,12],[6,12,12,4],[12,20,6,34],[12,20,18,34]]]
+  ].map(r => ({ name: r[0], jp: r[1], up: r[2], rev: r[3], seg: r[4] }));
+
+  return { ZK, siryou, daiun, liunian, kyuseiFull, PALNAME, PALTEXT, ascendant, ASC_TEXT, PLACES,
+           HXT, hexReading, hexAll, LINE_NAME, SURI, suri, gokaku, GOGYO, gogyo, sansaiRel, PALM, RUNES };
+})(UR);
+</script>
+
+<!-- ============ 画数辞書(JIS第一・第二水準+補足/かな/部首補正) ============ -->
+<script>
+const KAKU = (function(){
+  "use strict";
+  const S = {
+    1: "一乙丶丿亅",
+    2: "九七十人丁刀二入乃八卜又了力乂亠儿冂冖冫几凵勹匕匚匸卩厂厶",
+    3: "下干丸久弓巾己乞口工叉才三山士子勺女小上丈刃寸千川大土亡凡万巳也夕个于兀刄囗夂夊孑宀尢尸屮巛已幺广廴廾弋彑彡彳",
+    4: "井允引丑云円王化火牙介刈仇及牛凶斤区欠月犬元幻戸五互午公勾孔今支止氏尺手収什升少冗心仁壬水切双太丹中弔爪天斗屯内匂廿日之巴反比匹不夫父仏分文片方毛木勿尤匁厄友予与六弌丐亢从仍仄仆仂兮卆卅卞夬夭尹乢弖戈扎攴攵无旡曰歹殳毋气爻爿",
+    5: "圧以右卯瓜永凹央加可禾外且叶瓦刊甘丘旧去巨叫玉句兄穴玄乎古功巧広弘甲号左冊札皿仕仔司史四市示叱失写主囚充汁出処召尻申世正生斥石仙占匝他打代台凧只叩旦庁汀田奴冬凸乍尼白半氾犯皮疋必氷付布弗払丙平弁戊母包乏北本末未民矛目矢由幼用立令丕丱丼弍仗仞仭仟囘册冉刋匆丗卉卮夘叮叨叭叺圦夲孕它尓屶戉朮癶辷",
+    6: "旭安伊夷衣亥印因吋宇羽臼曳汚仮会回灰各汗缶企伎危机気吉吃休朽兇共匡仰曲刑圭血件伍交光向后好江考行合込此艮再在冴旨死糸至字寺次而耳自汐式守朱州舟戎夙旬匠庄丞色臣尽成西舌先尖舛全壮早争存多宅托団地弛池竹仲虫兆辻吊伝吐灯当同凪汝弐肉如任年肌伐帆汎妃百伏米辺忙朴毎亦牟名牝妄有羊吏両礼列劣老肋亙亘价伉伜决冱冲冰凩刔刎匈卍吁圷圸夛夸奸妁屹幵并忖戍戌扞扣扛扠扨攷收朿朶杁朸朷汕汢犲网耒聿艸艾虍襾赱阡",
+    7: "亜扱杏位囲医壱芋迂応沖牡何伽我快戒改貝角完肝含岐希忌汽妓技却吸求汲灸究亨狂局均吟玖串君形系決見言呉吾坑孝宏抗攻更劫克告困佐沙坐災材坂阪作伺志孜私似児宍車邪杓灼寿秀住巡初助序床抄肖条杖状伸身辛迅図吹杉声赤折宋走即束足村汰妥体対択沢但辰辿谷男町沈佃低呈廷弟兎杜努投豆禿酉沌呑那尿妊忍把売伯麦抜伴判釆否庇批尾肘扶吻扮兵別甫呆邦坊妨忘防吠没迄妙免杢戻冶役佑邑余妖抑沃来乱卵利李里良伶冷励呂労弄牢亊佚估佛佝佗佇兌冏况刧刪劬劭甸匣吽呀听吭吼吮吶吩吝呎囮坎圻址坏壯夾妝佞妣孚孛斈尨屁岌岑岔妛巫巵帋弃彷忻忤忸忱忰扼抂抉找抒抓抖抃抔抛攸旱曵杆杞杠杙杣杤汞汪沂沍沚沁沛汾汨汳沒沐犹狃狆狄瓧甬甼疔皀皃矣竍糺罕肛肓肚芍芒乕豕豸邨阨阮阯",
+    8: "阿芦宛姐或依委易育雨泳奄延沿炎於往押旺欧殴岡卸価佳果河花画臥芽怪拐芥劾拡学岳苅侃官岸玩岩奇季宜杵泣糾居拒拠享京供侠協怯況尭欣芹近金狗具空屈沓卦祁径芸迎券肩弦呼固姑孤弧狐股虎佼効幸庚拘昂杭肯肱刻国忽狛坤昏昆些妻采肴咋刷参使刺始姉枝肢事侍治竺実芝舎社者取受呪周宗叔所妾尚承招昇昌松沼芯垂炊枢制姓征性青斉昔析拙岨狙阻卒其陀岱卓拓坦担知宙忠抽注帖長直坪定底抵邸泥的典店妬宕東到届奈乳念杷波芭拝杯肺拍泊函板版卑彼披泌肥非枇表府怖斧芙阜附武服沸物併並返歩奉宝庖抱放朋法泡芳房肪牧奔妹枚枕抹沫侭味岬命明孟盲門夜弥油林例怜炉和枠乖亞亟佶侈侏侘佻佩佰侑佯來侖兒兔兩冽凭刮刳刹劼劵卷咏呵咎呟呱呷咒呻咀呶咄咐咆囹坩垈坡坿垉侫妲姆孥屆岫岻岶岼岷峅岾帚帙帑帛廸弩徃徂彿忝忿怡怙怐怩怛怕怫怦怏怺戔拔拗拑抻拆拈拌拊拂拇拉抬杲昊昃旻杳枉杰枩杼杪枌枋枦枡枅歿殀毟氓氛泄泱泓沽泗泅泝沮沱沾沺泛泯泙泪炙炒爭爬牀狎狒瓩畄疚疝盂矼祀秉穹竏籵罔羌肭冐肬臾舍芫芟芬虱軋迚邯邱邵陂隶隹鼡",
+    9: "娃哀姶虻按威為畏胃郁咽姻胤姥映栄洩盈英疫怨苑屋音科架珂苛茄迦俄廻恢界皆咳垣柿革恰括活茅冠巻姦柑看竿既祈紀軌祇客虐急峡挟狭粁苦粂軍係型契茎計建研県限故枯胡後侯厚垢巷恒洪皇紅郊降香拷恨査砂哉砕咲削昨柵拶珊姿屍思指施祉持室若狩首拾洲秋酋柔重述俊春盾叙将昭省乗城浄拭食信侵甚帥是政星牲窃宣専泉浅洗染穿前奏相促則俗柁耐待怠胎苔単炭胆段致昼柱苧挑勅珍津栂柘亭剃貞帝訂迭点度怒洞峠毒独栃突苫南迩虹廼派盃背矧柏迫畑発叛飛毘眉美柊彦姫秒苗品負赴侮封風柄頁変便勉保胞某冒勃殆盆昧柾俣姪面茂籾耶約柳勇宥幽柚洋要洛律流侶亮厘玲苓郎歪亰俔俟俎俘俛俑俚俐俤俥兪冑凾剏剄剋剌勁匍卻厖呰哇咢咸咥咬哄哈咨咫哂咤咾咼哘咯圀囿垓垠垳垤垪垰竒奕奐奎姨姜妍姙姚孩宦屎屏峇峙庠弭弯彖徊很徇恠怎怱恪恟恊恆恍恃恤恂恬恫扁拏拜挌拮拱挧挂拯拵畋斫昵昶昴昜昿曷朏枷柯枴柬枳柩枸柤柞柝柢柮枹柎柆柧殄殃洟衍洶洫洽洸洙洵洳洒洌炯炬炸炳炮爰爼牴狢狠狡珈玳珎玻珀瓮瓲瓰瓱畍畊畉畆疥疣癸皈盻眈眇眄矜砌砒禹禺秕穽竕竓笂紆紂缸罘胛胥胙胝胄胚胖脉苡苣苟苒苴苳苺范苻苹苞茆苜茉苙衂衫訃赳迥迢迪迯酊閂陌陏陋韋韭鳬桒栁",
+    10: "唖挨茜案茨員院烏唄浦荏益悦宴翁俺恩夏家蚊峨悔海害浬格核株釜栢桓陥帰記起飢鬼桔砧逆宮笈級挙卿恐恭胸脅桐衿倶矩屑栗桑訓郡珪恵桂荊桁倹倦兼剣拳軒原個庫娯悟候倖晃校浩紘耕航荒貢砿高剛骨根唆差座挫宰栽剤財朔窄索桜捌晒桟蚕残師紙脂時疾柴射紗借酌弱殊珠酒修臭従祝峻准殉純書徐恕除哨宵消症称笑辱唇娠振晋浸疹真神秦針訊陣粋衰畝凄栖脆隻席脊扇栓栴閃祖租素倉捜挿草荘送息捉孫帯泰退託茸狸耽値恥畜秩茶衷酎凋捗朕追庭悌挺釘哲展徒砥砺倒党凍唐套島桃涛討逃胴涜特祢悩納能蚤破馬俳配倍狽秤剥畠隼班畔般挽匪疲秘桧紐俵豹病浜浮粉紛陛娩圃捕倣俸峰峯砲剖紡埋哩桝脈粍眠娘冥迷耗紋涌祐容浴琉留竜旅凌料倫烈恋朗浪狼倭脇乘亳倚倨倔倪倥倅俶倡倩倬俾俯們倆偖冓冤冦冢凅凉剞剔勍叟哥哦唏唔哽哮哭哺哢圄埀埃埆埔埒埓埖奚奘娥娟娑娜娉娚宸尅屓屐峩峽峺峭峪弉徑恚恁恷恣恙悁悍悃悚悄悛悖悗悒悧悋拿挈捐挾捍捏效旃旆旁旄晏晄晉晁晟栞框栩桀桍栲桎栫桙档殷氤氣浣涓浤浚浹浙涕涅烟烋烝烙狹狷倏珥珮珞珱畛畚痂疳痃疽疸疼疱皋皰盍眩眤眞眛砠祠祗祟祚祕祓秧秬秡秣窈站竚竝笏笊笆笄笋粃粐紜紕紊缺罟罠羔翅翆耆耄耘耙耿耻胯胱胼舁舐舩舫舮芻茵茴茖茲茱荀茹荐荅茯茫茗茘虔蚓蚣蚩蚪蚋蚌衄袁衾衵衽衲袂訖訐訌豈豺躬迴逅迹迺迸郢郤郛釖釟釡釛陜陞陝陟陦髟鬥鬯鬲﨏",
+    11: "逢悪梓庵偉尉惟異移域淫陰厩営液掩焔荻桶荷貨晦械崖涯蛎殻郭掛笠梶渇兜乾勘患莞貫眼基寄規亀偽掬脚救球虚許魚強教郷躯偶釧掘袈啓掲渓畦経蛍訣健圏堅捲牽険現絃舷御梧康控梗黒惚頃婚梱混痕紺彩採済砦祭斎細崎埼笹匙殺皐惨産斬視痔鹿雫執悉偲捨赦斜蛇釈寂授終習渋宿淑粛術淳渚庶商唱娼捷梢渉祥章紹訟剰常情埴深紳笥逗推酔崇据雀清盛逝惜戚責接設雪旋船措曽粗組爽掃掻曹巣窓造側速族袖唾堕舵堆袋第啄脱探淡蛋断逐窒着猪帳張彫眺頂鳥陳通掴壷紬釣停偵梯逓笛添甜転堵屠途都悼梼盗淘透陶動堂匿得寅惇豚捺軟捻粘埜脳婆排敗培梅陪這粕舶莫販晩被畢彪票彬貧敏瓶埠婦冨符部副淵閉偏崩捧烹訪望釦堀麻密務猛問野訳唯悠庸欲翌淀莱梨理陸率掠略粒梁涼猟陵淋涙累連婁偃假偕偐偈做偬偸冕處凰剪剱勗匐匏區厠參曼唹啀啣啌售啜啅啖啗唸唳啝圉圈國堊埣堋梦奢婀婬婉娵娶婢婪孰寃寇寉將專崋崕崗崟崛崑崔崢崚崙崘帶帷弸彗從徙徘徠惧悸惓悴悽惆悵惘戛掖掎掀掫捶掏掉掟掵捫捩敖敕敍敘敝斛旌晞晝晤晧晨晢朖梳桷桿梟梏梭梔條梛梃梹桴梵梠梺梍桾欸欷殍毬毫涎淹渕渊涵淇淦涸淆淬淞淌淨淒淅淺淙淤淕淪淮烱焉烽牾犁猗猊猜猖猝琅珸瓠瓸瓷畩畤畧疵痍痊痒皎盖盒眥眦眷眸硅窕竡笳笘笙笞笵笨笶絅絋紮紲紿紵絆羞羝羚翊耜聊聆脛脩脣脯舂舸舳莓莅莪莟莢莖茣莎莇莊荼莵荳荵莠莉莨莽蚶蚯蛄蛆蚰蛉蚫衒袞袗袒袮袙袢袍袤袰覓訛訝訥谺豼戝貭貪貮赧跂趾趺軛軣逑逕逡逍逞逖逋逧逎扈酖酘釼釵釶閇閊陷陬勒竟馗鹵麥麸髙",
+    12: "握渥絢粟袷椅萎逸飲渦閏雲詠越堰援甥奥黄温華菓賀雅絵開階凱慨街蛙鈎覚割喝椛粥寒喚堪換敢棺款間閑雁喜幾揮期棋棄稀貴欺菊喫黍給渠距喬暁欽琴筋菌喰寓隅隈景軽戟傑結喧検硯減湖袴菰雇喉港硬絞腔項詐最犀菜裁堺策傘散斯紫詞歯滋軸湿屡煮就衆週集竣舜循順暑勝掌晶湘焼焦硝粧菖証詔象場畳植殖森診進尋腎靭須酢厨椙菅晴棲税絶践善然曾疏疎訴創喪惣痩装測属揃尊詑惰替滞貸逮隊琢巽棚湛短弾智筑註著貯喋朝脹超椎痛堤提程貼渡登菟棟湯痘祷等答筒統童萄敦鈍猫覗琶廃牌媒買博硲筈溌筏蛤斑飯番蛮悲扉斐費備琵菱弼筆媛評描蛭斌富普復幅焚雰塀菩報萌傍帽棒貿満湊無椋婿棉貰悶愉揖湧猶郵雄揚揺陽絡嵐痢硫隆量琳塁裂廊禄惑椀湾腕舒傀傚傅剴剩剳勞飭凖厦厥喙喀喊喟啻啾喘喞單啼喃喩喇喨圍堙堝堡壺壹壻奠媚孳寔寐孱嵜嵌嵒嵎嵋幄幃幀幇廁廂弑彭徨悳惡惠愕惶愀惴惺愃愡惻惱愎戞掣掾揩揀揆揣揉插揶揄敞晰暃朞椏椁棊椈棘椢椦棡椌棍棔棧棕椒椄棗棣椥棹棠棯椨椪椚椣椡棆楮盜欹殘殕殼毳毯渭湮渮渙湲湟渾渣湫渫湶湍渟湃渺湎渤渝游溂焜焙爲牋犂犇猴猯猩猥琥琲琺甦畫畭畴痙痣痞發皖皓皴睇硴稈稍窗窘窖竢竦筐筍筌筅筬筝粤粭粢粫粡粨絳絖絎絲絨絮絏絣翕翔耋聒腋隋腆脾腓腑腴莚菴萓菫菎菽萃菘萋菁菷萇菠菲萍萢萠萸菻蛔蛞蛩蛬蛟蛛蛯袵袿袱裃裄覃覘觚觝訶詁詛詒詆詈貂貽貳貶賁趁跏跚跖跌跛跋躰軼軻軫辜逶逵逹鄂酣酥釉鈞釿鈔鈬鈕鈑鈩閔閖陲隍靫靱颪飩飫馭馮黹堯﨑",
+    13: "愛葵葦飴暗意違溢碓運瑛園煙猿鉛塩嫁暇過蛾解塊概碍該較隔楽滑葛萱勧寛幹感頑義詰業極僅勤禁禽愚虞遇窟靴群傾携敬継罫詣嫌献絹源誇跨鈷鼓瑚碁慌溝鉱腰嵯裟債催塞歳載罪碕搾嗣獅詩試資飼辞嫉惹腫愁酬楯準署傷奨照蒋詳鉦飾触寝慎新睡遂随瑞嵩数勢聖誠跡摂節戦煎羨腺詮賎禅塑楚鼠想葬賊続損楕滝蛸達竪暖痴稚置遅馳牒腸跳賃塚椿碇艇鼎溺鉄填殿電塗塔塘搭董働道督椴遁頓楢馴畷楠韮葱農楳煤萩鉢鳩塙搬煩頒碑微稗逼葡楓葺腹遍補募蜂豊飽睦幌稔盟滅爺靖愈猷裕遊誉預傭楊溶葉雷落酪裏裡葎溜虜稜鈴零廉煉賂路楼榔話賄詫碗亂亶會傴傲僉僊傳僂剿剽勣勦勠匯嗚嗅嗟嗄嗜嗤嗔圓嗇塢塋塰毀塒堽壼奧媼媾嫋嫂媽嫐尠嵬嵳嵶幎廈彁彙徭慍愆惷愍愾愧慊愼愴愽慄戡搜搖搆搓搦搶搗搨搏斟旒暈暎暉暄暘椶楹楷楜楸楫楔楾椹楴椽楙椰楡楞楝榁楪飮歇歃毓溪溘滉溷滓溽溯滄溲滔溏溥滂溟漓煥煦煢煌煖煬猾瑯瑕琿瑟瑙瑁瑜甞畸當痾痿痼瘁痰痺痲痳皙盞睚睨睫睛睥睹矮碎碆硼碚碌祺祿稘稙稠稟禀筺筥筴筧筰筱筮粳粲粱粮糀經綉絛綏絽綛罨罩罧羣耡聘肄肆肅腱腮腥腦腟舅艀葭萪萼蒄葷葫葮蒂葩葆萬葯葹萵葢號蜆蜈蜀蜃蛻蜉蜍蛹蜊衙裔裘裙裝觜觧詼詭詬詢誅誂誄豢貉貅貊貲賈賍跪跫跟跣躱軾輊輅輌辟遏遐遑遒遉逾遖鄒酩鉞鉗鉅鉉鉤鉈鈿鉋鉐鉚閘閙閠隘隕隗雎雋雉雍雹靹韵頏頌骭髢鳧鳰鳫麁黽",
+    14: "斡綾維稲隠嘘餌駅榎厭演遠嘉寡歌禍箇魁蓋劃廓赫閣鞄蒲慣漢潅監管関旗疑漁僑境緊銀駆窪熊頚隙遣語誤構綱膏酵閤豪酷獄漉魂瑳際榊察雑算酸誌雌慈爾磁蒔漆種綬需蒐銃塾緒嘗彰裳障蒸蝕榛塵翠頗裾摺精製誓静碩説蝉煽銭銑漸遡僧槍漕総綜聡蒼像増遜駄態腿奪嘆端箪綻蜘蓄嫡徴暢銚槌漬綴禎摘滴嶋銅徳読鳶賑認寧箔漠駁箸肇髪罰閥緋鼻漂蒜賓腐舞福聞幣弊碧箆輔墓鳳貌鉾僕槙幕慢漫箕蜜蓑夢銘鳴綿摸網蒙餅誘様熔蓉踊遥裸僚領緑瑠暦歴漣漏蝋僖僞僥僭僣僮兢冩匱厮厰嘔嗷嘖嗾嗽嘛嗹團圖塲塹墅壽夐夥奬奩嫣嫗嫦嫩嫖孵寤實寢寞寥對嶌嶇嶄嶂幗幔麼廐廏廖慇愨愿愬慂慳慷慘慚慴慯慥慱慟慓慵截搴摧摶摎敲暝榲榮槐榿槁槓榾槎寨槊槝榻槃榧樮榑榠榜榕榴槞榱歉殞滿漑滬滸滾滲漱滯漲滌漾滷煕熈熏熄熕犒犖獏瑰瑣瑪瑶甄甃甅瘋瘍瘉瘧皸皹盡睿睾碣碵碪碯禊稱窩竭竰筵箝箘箟箍箜箚箋箒箏箙粹粽綺綮綣綵緇綽綫綢綯綸綟綰緕翡聚聟聢膃膈膊膀膂臧臺與蒭蓊蒹蒿蒟蓙蓍蒻蓚蓐蓁蓆蓖蒡蜒蜑蜴蜿蜷蜻蜥蜩蜚裹褂裼裴裨裲褄覡誨誡誑誥誦誚誣貍趙跼踈踉跿輕輒輓辣遘遞鄙酳酲銕銜銖銓銛閨閧靤鞅靼鞁靺鞆韶颯颱餃餉馼骰髣髦皷齊槇遙瑤熙",
+    15: "鞍慰緯蔭蔚噂影衛鋭閲縁横鴎億稼蝦課嘩餓駕撹確樫潟褐噛歓澗緩諌翫嬉毅畿輝儀戯誼窮駈駒勲慶慧稽劇撃潔権賢糊稿麹穀撮撒賛暫賜質蔀遮趣熟潤醇諸鋤廠樟衝賞嘱審震諏澄請撰潜箭線遷糎噌層槽遭憎蔵誰歎誕談鋳駐樗潮蝶調墜槻蔦潰締鄭敵適徹撤賭踏導憧撞鴇縄熱撚播罵輩賠蝿箱幡範盤磐罷誹樋膝標廟鋲敷膚賦撫複噴墳憤蔽僻蔑篇編舗鋪穂慕暮蓬褒鋒暴頬墨撲摩膜蔓魅緬模黙憂窯養慾履璃劉慮寮諒輪隣霊憐練蓮魯論價僵儉儁儂凛劍劈匳噎噐嘴嘶嘲嘸嘯墹墟墫墸墮嫺嫻嬌嬋寫嶢嶝嶐幟幢幤廣廝廚廛廢廡彈慙慫慝憇憬憔憚憫憮戮摯撕撓撥撩撈數暼槨樂樛槿槹槲槧樅樞槭樔槫樊樒樣樓樌樢歐殤毆麾滕潁漿澆潺潸澁潯潛潭澂潼潘澎澑潦濆潴熨熬獎獗瑩瑾璋瘟瘠瘡瘢瘤皚皺瞎瞋瞑磑磆磋磔碾碼磅磊禝稻稾稷穃窰篋篁篌篏箴篆糅糂緜緘緝緤緞緻緲緡縅罸羯羮翦翩聨膠膕膤膣膓舖蔆蔡蓿蓴蔗蔘蔬蔟蔕蔔蓼蝠蝟蝸蝌蝎蝴蝗蝨蝮蝙蝓蝣蝪螂褌褊褓褝覩諄諍諂諚諛豌豎豬貎賤賣賚赭踝踞踐踟踪輙輜輟輛輦遨遯鄲鄰醋醉醂鋏銹銷鋩閭霄霆霈靠鞋鞏鞐頡餒餔餘駟駛駝駘駑髯髫髮髴髱鬧魄魃魴鴉鴈鴃鴆麩麪黎齒凜德",
+    16: "穐鮎謂遺窺叡穎頴謁燕鴛鴬憶穏壊懐骸樺鴨憾翰館舘器機橘鋸禦彊橋興蕎凝錦憩激憲諺醐衡鋼墾錯錆餐諮鴫篠蕊縞錫儒樹輯獣縦遵樵蕉鞘壌嬢錠親錐錘整醒積選膳操醍濁諾樽壇築諜諦蹄澱燈糖蕩頭篤橡噸曇燃濃縛醗噺蕃髭瓢頻蕪鮒奮壁瞥膨謀穆磨麺諭輸融擁頼覧龍遼燐隷錬篭録蕨豫儘儖儕儔儚冀冪劔劒劑辨辧勳噫噤噬噪圜墺墻壅嬖學寰嶬嶮廨廩彜徼憙憖憊憑懌懊懈懆憺罹懍戰擔撼據擒擅擇撻擂舉旙曁暹曉暾曄暸橄橲樶橸橇橢橙橦橈樸歙歔殪殫濂澳澣澡澤澹澪燗熹熾燒燉燔燎默獪獨璢璞甌甎甍疂瘴瘰瘻盥盧瞠瞞磬磧磚窶篝篩簑篦篥糘糒縊縣縡縒縟縉縋縢羲耨膩膰膵臻艙艘蕚蕀蕣蕘蕈蕁蕋蕕蕭螢螟衞褞褥褪褫覦諫諳諧諤諱謔諠諢諷諞諡蹂踵踰踴躾輳輻輹遶隨遲錏鋺鍄錮錙錢錚錣錺錵錻閼閻閹閾闍險隧霍雕霓霎霑霏霖靜靦頸頤頷頽餡餝餞餤餠駭駮駱駲駢骼髷髻鬨鮓鮃鮑鮖鮗鴪鴦鴣鴟鴕鴒麈麭黔龜",
+    17: "闇磯嬰薗臆霞嚇獲橿轄環還韓癌徽擬犠鞠矯櫛鍬薫謙鍵厳檎糠講購鴻壕濠甑懇鮭擦鮫燦謝爵繍醜縮瞬駿曙薯償礁醤鍾燭薪趨績繊薦鮮燥糟霜戴黛濯鍛檀聴鍔嬬擢鍍謄瞳薙謎鍋濡膿薄繁避錨蕗糞縫鮪儲薬薮優輿謡翼螺濫療瞭臨嶺齢聯儡勵簒燮營嚆嚀嚊嚏壓壑壗嬲嬪嬶孺嶽嶷嶼彌應懃懋懦戲擘擱擠擡擣擯斂斃曖曚檜檐檍檠檄檢檣檗檪歛氈濤澀濟濕濬濔濘濱濮濛燠燬燧燵牆獰癇癈癆盪瞰瞶磽磴禧齋禪穗穉窿邃簔簀簇簓篳篷簗簍篶糜糢總縱繆縻縵縹繃縷縲縺罅翳聳聲聰膾膸膽臀臂膺臉臈艝艚艱薀薤薈薑薊薨薔薛薇薜蕷蕾薐虧螯蟋螽蟀蟐雖螫蟄螳蟇蟆螻蟒襃襁襄褻褶褸覬覯謌謇謚謖謐謗謠豁谿貔賽賺賻蹊蹇蹉蹌蹐蹈轅轂輾邂遽邁邀邉醢鍜鍠鍼鍮鍖闊濶闃闌隱隲隰隸霙鞜顆颶餬饂馘駻駸騁鮟鮠鮨鮴鵄鵁鴿鴾鵆鵈麋黏黜點黝黻鼾齔龠濵",
+    18: "鵜鎧額顎鎌簡観顔騎謹顕験鯉鵠鎖薩擾穣織職雛蹟繕礎叢鎗騒臓題瀦鎮鎚闘嚢謬覆癖鞭翻麿癒曜藍離糧藁雙嚠嚔嚮壙壘彝懣懴戳擧擶擴擲擺擽攅斷旛朦檮櫁檻櫃櫂檸檳檬歟歸殯瀉瀋濺瀑瀁瀏濾燻燼燹燿獵璧甕甓癜癘瞹瞿瞼瞽瞻礇礒礑禮穡穢竅竄簣簧簪簟簫繧繝繖繞繙繚羂翹聶臍臑舊艟藉薺藏薹藐蟯蟲蟠蠎襌覲觴謳鞫謦謫謾謨豐貘贄贅蹙蹤蹠蹣蹕轌轉轆邇醫醪釐鎰鎬鎭鎔鎹闕闔闖襍雜霤鞨鞦鞣顏顋餮餽餾馥騏騅髀鬆鬩魏魍魎鯀鯊鮹鯆鯏鯑鯒鵝鵞鵤鵑鵐鵙麌黠鼕鼬",
+    19: "鯵韻艶襖蟹穫贋願蟻鏡襟繰繋鶏鯨鹸鯖璽識蹴藷瀬贈騨鯛瀧寵懲鏑轍顛藤瀞難禰覇曝爆藩簸瀕譜簿鵬繭霧鵡羅類麗簾櫓麓勸嚥壞壜壟嬾寳廬懷懶攀曠櫞櫑櫟櫚殱濳瀛瀚瀝瀘瀟爍牘犢獸獺瓊瓣疆疇癡矇礙穩簷簽籀繦繹繪繩羆羃羹羶羸臘艤艢藪藕藝藥藜蠅蠏蠍蟾蟶蟷襠襞覈譁譌譏譎證譖譛譚贊贇蹶蹲蹼躇軅轎辭邊醯鏖鏗鏨鏥鏘鏃鏝鏐鏈鏤關隴霪鞳鞴韜韲饉饅騙鯣鯢鯤鯔鯡鯲鯱鯰鵲鶉鶇鵯鵺麒麕麑靡黼",
+    20: "馨鰍艦巌議競響警懸纂鐘譲醸髄籍蘇藻鐙騰櫨耀鰐嚶嚴嚼壥壤孃孅孀寶巉廰懺攘曦朧櫪瀰瀾瀲爐犧獻瓏疉癢矍礦礪礬礫竇籌籃籏糯繼繻纃繽辮繿罌譱聹臙臚艨蘂藹蘊蘓蘋藾藺蘆蘢蘰蠑蠖蠕襦襤覺觸譫譟譬譯贏贍躁躅躄軆轗醵醴釋鐚鐔鐓鐃鐇鐐鐡闡霰飄飃饐饋饑饒饌騫騷鬪鰕鰔鰉鰓鰌鰆鰈鰒鰊鰄鰛鶫鶚鶤鶩鹹黥黨齣齟齠齡",
+    21: "鰯竃饗顧護轟鐸鶴纏鰭魔躍欄蘭露儺儷囂囁囃囀屬巍廱懽懼懾攝攜曩霸蘗櫻欅蘖櫺殲灌爛瓔癨癩癪癧蘯龝竈籔籐籖糲纈纉續纐纎罍飜艪蘚蠣蠢蠡襭襪覽譴譽贐齎贓贔躋躊轜辯醺鐶鐫鐵鐺鑁闥闢霹飆驅驂驀驃騾髏鬘魑鰮鰥鰤鰡鰰鶯鶲鷄鷁鶻鶸鶺鷆鷏鷂麝黯齦齧",
+    22: "鰻鰹鑑轡讃襲鱈灘鑓聾儼儻竸囈囎巓巒彎懿攤權歡灑疊癬禳穰竊籠籘籟鬻糴纒罎羇聽臟艫蠧襯覿讀贖躓躑躔轢鑒鑄霽霾韃顫饕驕驍鬚鰺鱇鰲鱆鰾鷙鷓黐齬齪龕",
+    23: "驚讐鱒鱗麟鷲巖戀攪攣攫變欒癰籤籥纓纔纖蘿蠱襴讌讎躙轣轤邏鑛鑠鑢鑞鑚靨齏顯驛驗髑髓體髞鬟鱚鷸鷦鷭鷯黴鼇",
+    24: "鷺鷹囑囓攬癲矗罐羈艷蠶蠹衢襷讒讓讖軈釀鑪靄靆靈靂韆韈顰驟鬢魘鱠鱧鷽鹽齷齲齶",
+    25: "欝廳欖灣籬糶纛臠蠻覊觀讙躡釁鑰靉顱鬣黌鼈",
+    26: "矚讚鑵鑷驢驥鱶黶",
+    27: "纜躪鑽鑼鑾顴顳驤鬮鱸黷",
+    28: "欟钁鑿驩鸚",
+    29: "鬱爨驪鸛",
+    30: "驫鸞",
+  };
+  const ADJ = [
+    ["氵", 1, "氾汀汁汎汐汗汚汝江池汰汲決汽沃沈沌沖沙没沢沓沫河沸油治沼沿況泊泌法泡波泣泥注泳洋洗洛洞津洩洪洲活派流浄浅浜浦浩浪浬浮浴海浸消涌涛涜涙涯液涼淀淋淑淘淡淫深淳淵混添清渇済渉渋渓渕渚減渠渡渥渦温測港湊湖湘湛湧湯湾湿満溌滋滞源準溜溝溢溶溺滅滑滝滴漁漂漆漉漏演漕漠漢漣漫漬漸潅潔潜潟潤潮潰澄澗澱激濁濃濠濡濫濯瀦瀕瀞瀧瀬灘洸洵澪濤漱涓汕汢汪沂沍沚沁沛汾汨汳沒沐泄泱泓沽泗泅泝沮沱沾沺泛泯泙泪洟洶洫洽洙洳洒洌浣浤浚浹浙涎涕涅淹渊涵淇淦涸淆淬淞淌淨淒淅淺淙淤淕淪淮渭湮渮渙湲湟渾渣湫渫湶湍渟湃渺湎渤滿渝游溂溪溘滉溷滓溽溯滄溲滔溏溥滂溟潁漑灌滬滸滾滲滯漲滌漾漓滷澆潺潸澁澀潯潛濳潭澂潼潘澎澑濂潦澳澣澡澤澹濆濟濕濬濔濘濱濮濛瀉瀋濺瀑瀁瀏濾瀛瀚潴瀝瀘瀟瀰瀾瀲灑灣"],
+    ["扌", 1, "打払托扮扱扶批技抄把抑投抗折抜択披抱抵抹押抽担拍拐拒拓拘拙招拝拠拡括拭拶拷拾持指按挑挟挨挫振挺挽挿捉捌捕捗捜捧捨据捲捷捺捻掃授排掘掛掠採探接控推掩措掬掴掻掲揃描提揖揚換握揮援揺損搬搭携搾摂摘摸摺撒撚撞撤撫播撮撰撲撹擁操擢擦擬擾扎扞扣扛扠扨扼抂抉找抒抓抖拔抃抔拗拑抻拆擔拈拜拌拊拂拇抛拉挌拮拱挧挂挈拯拵捐挾捍搜捏掖掎掀掫捶掣掏掉掟掵捫捩掾揩揀揆揣揉插揶揄搖搴搆搓搦搶攝搗搨搏摧摶摎攪撕撓撥撩撈撼據擒擅擇撻擘擂擱擠擡抬擣擯攬擶擴擲擺擽攘攜攅攤攫"],
+    ["忄", 1, "忙快怖怜性怪怯恒恢恨恰悌悔悟悦悩悼情惇惚惜惟惨惰愉慨慌慎慢慣慰憎憐憤憧憶憾懐憬忖忻忤忸忱怡恠怙怐怩怛怕怫怦怏怺恪恟恊恆恍恃恤恂恬悁悍惧悃悚悄悛悖悗悒悧悋悸惓悴忰悽惆悵惘慍愕惶愀惴惺愃愡惻惱愎愾愧慊愼愴愽慄慳慷慘慴慯慥慱慟慓慵憔憚憫憮懌懊懷懈懆憺懍懦懶懺懴懽懼"],
+    ["犭", 1, "犯狂狐狗狙狛狩独狭狸狼狽猛猟猪猫猶猿獅獄獲犹犲狃狆狄狎狒狢狠狡狹狷猗猊猜猖猝猴猯猩猥猾獏獗獪獨獰獵獺"],
+    ["王", 1, "玖玩玲珂珈珊珍珠珪班琉現球理琢琳瑛瑞瑠瑤瑳環璃瑚玳珎玻珀珥珮珞璢琅瑯琥珸琲琺瑕琿瑙瑁瑜瑩瑰瑣瑪瑶瑾璋璞瓊瓏瓔珱"],
+    ["艹", 2, "芋芙芝芥芦芭芯花芳芸芹芽苅苑苓苔苗苛若苦苧苫英茂茄茅茎茜茨茶茸草荊荏荒荘荷荻莞莫莱菅菊菌菓菖菜菟菩華菰菱萄萌萎著萩萱落葉葎葛葡董葦葬葱葵葺蒋蒐蒔蒙蒜蒲蒼蓄蓉蓋蓑蓬蓮蔀蔑蔓蔚蔦蔭蔵蔽蕃蕉蕊蕎蕨蕩蕪蕗薄薗薙薦薪薫薬薮薯薩藁藍藤藩藷藻蘇蘭茉莉薇蕾苺艾芍芒芫芟芻芬苡苣苟苒苴苳莓范苻苹苞茆苜苙茵茴茖茲茱荀茹荐荅茯茫茗茘莅莚莪莟莢莖茣莎莇莊荼莵荳荵莠莨菴萓菫菎菽萃菘萋菁菷萇菠菲萍萢萠莽萸蔆菻葭萪萼蕚蒄葷葫蒭葮蒂葩葆萬葯葹萵蓊葢蒹蒿蒟蓙蓍蒻蓚蓐蓁蓆蓖蒡蔡蓿蓴蔗蔘蔬蔟蔕蔔蓼蕀蕣蕘蕈蕁蘂蕋蕕薀薤薈薑薊薨蕭薔薛藪薜蕷薐藉薺藏薹藐藕藝藥藜藹蘊蘓蘋藾藺蘆蘢蘚蘰蘿"],
+    ["月", 2, "肋肌肖肘肝股肢肥肩肪肯肱育肴肺胃胆背胎胞胡胤胴胸能脂脅脆脇脈脊脚脱脳脹腎腔腕腫腰腸腹腺腿膏膚膜膝膨膳膿臆臓肛肓肚肭肬胛胥胙胝胄胚胖脉胯胱脛脩脣脯腋腆脾腓腑胼腱腮腥腦腴膃膈膊膀膂膠膕膤膣腟膓膩膰膵膾膸膽臀臂膺臉臍臑臙臘臈臚臟臠"],
+    ["耂", 2, "考者耆耄耋"],
+    ["辶", 3, "辺辻込迂迄迅辿迎近返迦迩迫迭述迷追退送逃逆逐逓途逗這通逝速造逢連逮週進逸逼遁遂遅遇遊運遍過道達違遜遠遡遣遥遭遮遷遵選遺遼避還邊邉遙辷迚迥迢迪迯邇迴逅迹迺逑逕逡逍逞逖逋逧逶逵逹迸遏遐遑遒逎遉逾遖遘遞遨遯遶隨遲邂遽邁邀邏"],
+    ["阝右", 4, "邦邪那邸郁郊郎郡部郭郷都郵鄭鄙邨邯邱邵郢郤郛鄂鄒鄲鄰"],
+    ["阝左", 5, "阪防阻阿附降限陛院陣除陥陪陰陳陵陶陸険陽隅隆隈隊階随隔際障隠隣隙阡阨阮阯陂陌陏陋陷陜陞陝陟陦陲陬隍隘隕隗險隧隱隲隰隴隋"],
+  ];
+  const KANA = "あ3い2う2え2お3か3き4く1け3こ2さ3し1す2せ3そ1た4ち2つ1て1と2な4に3ぬ2ね2の1は3ひ1ふ4へ1ほ4ま3み2む3め2も3や3ゆ2よ2ら2り2る1れ2ろ1わ2を3ん1ぁ3ぃ2ぅ2ぇ2ぉ3ゃ3ゅ2ょ2っ1ゎ2ア2イ2ウ3エ3オ3カ2キ3ク2ケ3コ2サ3シ3ス2セ2ソ2タ3チ3ツ3テ3ト2ナ2ニ2ヌ2ネ4ノ1ハ2ヒ2フ1ヘ1ホ4マ2ミ3ム2メ2モ3ヤ2ユ2ヨ3ラ2リ2ル2レ1ロ3ワ2ヲ3ン2ァ2ィ2ゥ3ェ3ォ3ャ2ュ2ョ3ッ3ヮ2ヶ3ヵ2ー1";
+  const base = {}, adj = {}, kana = {};
+  Object.keys(S).forEach(s => { for (const ch of S[s]) base[ch] = +s; });
+  ADJ.forEach(a => { for (const ch of a[2]) adj[ch] = [a[1], a[0]]; });
+  KANA.replace(/(\D)(\d)/g, (m, c, n) => { kana[c] = +n; return m; });
+  /* 1文字の画数。戻り値: {n, base, adj, label, src} / 未収録は n=null */
+  function lookup(ch){
+    if (kana[ch] !== undefined) return { n: kana[ch], base: kana[ch], adj: 0, label: "", src: "kana" };
+    const d = ch.normalize("NFD");
+    if (d.length === 2 && kana[d[0]] !== undefined && (d[1] === "\u3099" || d[1] === "\u309A")){
+      const add = d[1] === "\u3099" ? 2 : 1;
+      return { n: kana[d[0]] + add, base: kana[d[0]], adj: add, label: d[1] === "\u3099" ? "濁点+2" : "半濁点+1", src: "kana" };
+    }
+    if (base[ch] === undefined) return { n: null, base: null, adj: 0, label: "", src: "none" };
+    const a = adj[ch] || [0, ""];
+    return { n: base[ch] + a[0], base: base[ch], adj: a[0], label: a[0] ? a[1] + "+" + a[0] : "", src: "dict" };
+  }
+  return { lookup, size: Object.keys(base).length, S, ADJ };
+})();
+</script>
+
+<!-- ============ ランチャーUI ============ -->
+<script>
+(function(){
+  "use strict";
+  const U = UR, X = UX;
+  const $ = id => document.getElementById(id);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const PKEY = "uranai:profile";
+
+  /* ----- プロフィール ----- */
+  let profile = {};
+  try { profile = JSON.parse(localStorage.getItem(PKEY) || "{}") || {}; } catch (e) { profile = {}; }
+  function persist(){ try { localStorage.setItem(PKEY, JSON.stringify(profile)); } catch (e) {} }
+  function parseBirth(s){
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || "");
+    return m ? { y: +m[1], m: +m[2], d: +m[3] } : null;
+  }
+  function latLon(){
+    if (profile.place === "custom"){
+      const la = Number(profile.lat), lo = Number(profile.lon);
+      return (profile.lat !== "" && profile.lon !== "" && isFinite(la) && isFinite(lo)) ? { lat: la, lon: lo } : null;
+    }
+    const pl = X.PLACES.find(x => x[0] === profile.place);
+    return pl ? { lat: pl[1], lon: pl[2] } : null;
+  }
+  function parseTime(s){
+    const m = /^(\d{2}):(\d{2})$/.exec(s || "");
+    return m ? { h: +m[1], mi: +m[2] } : null;
+  }
+
+  /* ----- 画面切替 ----- */
+  const views = {};
+  const pages = { home: $("home"), profile: $("tab-profile"), look: $("tab-look") };
+  const TAB_TITLE = { home: "Almanac", profile: "プロフィール", look: "外観" };
+  const navbar = $("navbar"), navTitle = $("nav-title"), navBack = $("nav-back");
+  function hideAll(){ Object.values(pages).forEach(p => { p.hidden = true; }); Object.values(views).forEach(v => { v.section.hidden = true; }); }
+  function markTab(name){ document.querySelectorAll("#tabbar .tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === name ? "true" : "false")); }
+  function onScroll(){
+    const y = window.scrollY || document.documentElement.scrollTop || 0;
+    navbar.classList.toggle("scrolled", y > 6);
+    navbar.classList.toggle("titled", y > 46);
+  }
+  function present(section, title, back){
+    hideAll(); section.hidden = false;
+    navTitle.textContent = title; navBack.hidden = !back;
+    section.classList.remove("push", "fade"); void section.offsetWidth; section.classList.add(back ? "push" : "fade");
+    window.scrollTo(0, 0); onScroll();
+  }
+  function showTab(name){ markTab(name); present(pages[name], TAB_TITLE[name], false); }
+  function goHome(){ showTab("home"); }
+  function goProfile(){ showTab("profile"); }
+  function open(id){
+    const v = views[id];
+    markTab("home");
+    present(v.section, v.title, true);
+    if (v.render) v.render(v.body);
+  }
+  function needBox(body, what, focusId){
+    body.replaceChildren(el("p", null, what + "がプロフィールに未設定です。"));
+    const b = el("button", "primary", "プロフィールを入力");
+    b.addEventListener("click", () => { goProfile(); $(focusId).focus(); });
+    body.appendChild(b);
+  }
+
+  /* ----- 共通部品 ----- */
+  function rows(container, cats, ratings){
+    cats.forEach((c, i) => {
+      const n = ratings[i];
+      const row = el("div", "row");
+      const head = el("div", "head");
+      head.appendChild(el("span", "name", c.name));
+      const dots = el("span", "dots");
+      dots.setAttribute("role", "img");
+      dots.setAttribute("aria-label", "5段階中" + n);
+      for (let k = 1; k <= 5; k++) dots.appendChild(el("span", "dot" + (k <= n ? " on" : "")));
+      head.appendChild(dots);
+      row.appendChild(head);
+      if (c.text) row.appendChild(el("p", null, c.text[n - 1]));
+      container.appendChild(row);
+    });
+  }
+  const DAILY = [
+    { name:"恋愛運", text:[
+      "感情的な発言は控えめに。話し合いは明日以降へ。","誤解が出やすい日。返信は一晩置いてから。",
+      "大きな動きはなし。普段どおりの距離感が安定。","会話が弾みやすい日。相手の話を最後まで聞くと好印象。",
+      "気持ちを伝えるほど流れが良くなる日。連絡は自分から。"] },
+    { name:"仕事運", text:[
+      "新規の判断は保留。既存タスクの整理に専念を。","抜け漏れに注意。提出前に一度見直しを。",
+      "平常運転。確認作業に時間を使うと後が楽。","段取りどおり進む日。午前中に重要作業を片付ける。",
+      "提案や交渉が通りやすい日。後回しの案件に着手を。"] },
+    { name:"金運", text:[
+      "出費がかさみやすい。大きな支払いは避ける。","衝動買いに注意。購入前に一日置く。",
+      "増減なし。家計の見直しに向く。","収支は安定。必要なものを買うのに向く日。",
+      "臨時の収入や得な情報が入りやすい。投資的な出費も吉。"] },
+    { name:"健康運", text:[
+      "無理は禁物。早めに休む。","疲れが出やすい。夜更かしは控える。",
+      "可もなく不可もなし。食事の時間を一定に。","調子は良好。水分と睡眠を意識すると維持できる。",
+      "体が軽く動く日。運動を始めるのに最適。"] }
+  ];
+  const D_COLORS = [["藍色","#2E4A8A"],["朱色","#E0523F"],["若草色","#8DB255"],["山吹色","#E8A317"],["桜色","#F3B7C5"],
+    ["紫","#7A4FA0"],["鼠色","#8A8D96"],["空色","#7FB8E0"],["深緑","#2F6B4F"],["白練","#F2EFEA"]];
+  const D_ADV = {
+    good:["迷っていることは今日決める。流れが後押しする。","感謝を口にすると、運が周囲にも回る。","最初の一歩は小さくていい。今日のうちに動く。"],
+    mid:["予定を詰めすぎず、余白を一つ残す。","身の回りを整えると、判断が澄む。","急がず、目の前の一件を丁寧に。"],
+    low:["今日は守りの日。無理に取り返そうとしない。","深呼吸を一回。焦りが最大の敵になる。","早く休む。明日は流れが変わる。"]
+  };
+  function dailyBlock(body, seedKey){
+    const now = new Date();
+    const key = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate();
+    const rnd = U.mulberry32(U.hash(seedKey + "|" + key));
+    const ratings = DAILY.map(() => U.weighted(rnd, [10, 20, 30, 25, 15]) + 1);
+    const avg = Math.round(ratings.reduce((a, c) => a + c, 0) / ratings.length);
+    const color = D_COLORS[Math.floor(rnd() * D_COLORS.length)];
+    const tier = avg >= 4 ? "good" : avg === 3 ? "mid" : "low";
+    const adv = D_ADV[tier][Math.floor(rnd() * 3)];
+
+    const blk = el("div", "block");
+    blk.appendChild(el("h2", null, "今日の運勢"));
+    rows(blk, [{ name: "総合" }], [avg]);
+    rows(blk, DAILY, ratings);
+    const dl = el("dl", "lucky");
+    const w = el("div");
+    const dd = el("dd");
+    const chip = el("span", "chip"); chip.style.background = color[1];
+    dd.append(chip, document.createTextNode(color[0]));
+    w.append(el("dt", null, "ラッキーカラー"), dd);
+    dl.appendChild(w);
+    blk.appendChild(dl);
+    const a = el("div", "advice");
+    a.style.marginTop = "16px";
+    a.appendChild(el("p", null, adv));
+    blk.appendChild(a);
+    body.appendChild(blk);
+  }
+  function note(body, text){ body.appendChild(el("p", "note", text)); }
+
+  /* ----- 星座占い ----- */
+  function renderZodiac(body){
+    body.replaceChildren();
+    const b = parseBirth(profile.birth);
+    if (!b) return needBox(body, "生年月日", "p-birth");
+    const t = parseTime(profile.time);
+    const z = U.zodiac(b.y, b.m, b.d, t);
+
+    function signBlock(title, r, mode){
+      const s = U.SIGNS[r.main];
+      const box = el("div", "sign");
+      box.appendChild(el("h2", null, title));
+      const names = r.all.map(i => U.SIGNS[i][0]);
+      box.appendChild(el("div", "big", names.join(" または ")));
+      if (mode === "sun") {
+        box.appendChild(el("div", "meta", s[1] + "・" + s[2] + "・守護星 " + s[3]));
+        box.appendChild(el("p", null, s[4]));
+      } else {
+        box.appendChild(el("div", "meta", "感情のあり方"));
+        box.appendChild(el("p", null, s[5]));
+      }
+      if (r.all.length > 1) box.appendChild(el("p", "warn", "出生時刻が未入力のため、この日の途中で切り替わります。プロフィールに出生時刻を入力すると確定します。"));
+      if (r.near) box.appendChild(el("p", "warn", "境界に近い時刻です。算出誤差により隣の星座の可能性があります。"));
+      return box;
+    }
+    body.appendChild(signBlock("太陽星座", z.sun, "sun"));
+    body.appendChild(signBlock("月星座", z.moon, "moon"));
+
+    const asBox = el("div", "sign");
+    asBox.appendChild(el("h2", null, "上昇星座"));
+    const ll = latLon();
+    if (!t || !ll){
+      asBox.appendChild(el("p", null, "出生時刻と出生地がプロフィールに未設定です。"));
+      const bb = el("button", "secondary", "プロフィールを入力");
+      bb.addEventListener("click", () => { goProfile(); $(!t ? "p-time" : "p-place").focus(); });
+      asBox.appendChild(bb);
+    } else {
+      const asc = X.ascendant(U.jdFromJST(b.y, b.m, b.d, t.h, t.mi), ll.lat, ll.lon);
+      const ai = Math.floor(asc / 30);
+      asBox.appendChild(el("div", "big", U.SIGNS[ai][0]));
+      asBox.appendChild(el("div", "meta", "黄経 " + (asc % 30).toFixed(1) + "度"));
+      asBox.appendChild(el("p", null, X.ASC_TEXT[ai]));
+      const r = asc % 30;
+      if (Math.min(r, 30 - r) < 1) asBox.appendChild(el("p", "warn", "境界に近い位置です。出生時刻の数分のずれで隣の星座になります。"));
+    }
+    body.appendChild(asBox);
+    const seed = "zodiac|" + z.sun.main;
+    const wrap = el("div"); dailyBlock(wrap, seed);
+    const h = wrap.querySelector("h2"); h.textContent = "今日の運勢(" + U.SIGNS[z.sun.main][0] + ")";
+    body.appendChild(wrap);
+    note(body, "太陽星座・月星座・上昇星座は天体の位置から日本標準時で算出(月は近似式)。上昇星座は出生地の緯度経度で算出し、都道府県は県庁所在地の位置を使用。");
+  }
+
+  /* ----- 四柱推命 ----- */
+  const ME_TEXT = [
+    "大樹。まっすぐ伸びる。","草花。しなやかに適応する。","太陽。明るく周囲を照らす。","灯火。繊細で内に熱を持つ。","山。どっしり動じない。",
+    "田畑。面倒見が良く受容的。","鉄。決断力と行動力。","宝石。美意識と繊細さ。","大河。スケールが大きく自由。","雨露。知性と感受性。"
+  ];
+  const TS_TEXT = {
+    "比肩":"自立・対等。自分のペースを守る日。","劫財":"競争・出費。人との駆け引きに注意。","食神":"楽しみ・創作。ゆとりが運を呼ぶ。",
+    "傷官":"才気・批判精神。言葉の強さに注意。","偏財":"流動的な収入・交際。動くほど得る。","正財":"堅実な収支。コツコツが実る。",
+    "偏官":"試練・緊張。決断力で切り抜ける。","正官":"信用・規律。ルールを守ると評価される。","偏印":"直感・独創。一人の時間が力になる。",
+    "正印":"学び・支援。援助を受け取ると吉。"
+  };
+  const TW_TEXT = {
+    "長生":"成長の始まり","沐浴":"不安定・変化","冠帯":"自立・華やぎ","建禄":"実力が安定","帝旺":"絶頂・強さ","衰":"円熟・落ち着き",
+    "病":"繊細・内省","死":"静止・思索","墓":"蓄える・整理","絶":"リセット・転換","胎":"芽生え・準備","養":"育まれる・成長待ち"
+  };
+  function renderBazi(body){
+    body.replaceChildren();
+    const b = parseBirth(profile.birth);
+    if (!b) return needBox(body, "生年月日", "p-birth");
+    const t = parseTime(profile.time);
+    const r = U.bazi(b.y, b.m, b.d, t);
+    const me = r.day.s;
+
+    const cols = [r.hour, r.day, r.month, r.year];
+    const heads = ["時柱", "日柱", "月柱", "年柱"];
+    const grid = el("div", "pillars");
+    const cell = (txt, cls) => { grid.appendChild(el("div", cls, txt)); };
+    const line = (label, fn, cls, last) => {
+      cell(label, "lab" + (last ? " last" : ""));
+      cols.forEach((p, i) => {
+        const c = el("div", (cls || "") + (i === 1 ? " day" : "") + (last ? " last" : ""));
+        const v = p ? fn(p, i) : "—";
+        if (typeof v === "object" && v) { c.textContent = v.text; c.className += " " + v.el; } else c.textContent = v;
+        grid.appendChild(c);
+      });
+    };
+    cell("", "lab");
+    heads.forEach((h, i) => cell(h, "head" + (i === 1 ? " day" : "")));
+    line("天干の通変星", (p, i) => (i === 1 ? "日主" : U.tsuhen(me, p.s)));
+    line("天干", p => ({ text: U.STEMS[p.s], el: "el" + Math.floor(p.s / 2) }), "big");
+    line("地支", p => ({ text: U.BRANCHES[p.b], el: "el" + U.BR_EL[p.b] }), "big");
+    const jdB = U.jdFromJST(b.y, b.m, b.d, t ? t.h : 12, t ? t.mi : 0);
+    const kdays = Math.floor(jdB - r.mTerm);
+    const sIdx = X.siryou(r.month.b, kdays);
+    line("蔵干(余・中・本)", (p, i) => X.ZK[p.b].map((z, k) => U.STEMS[z[0]] + (i === 2 && k === sIdx ? "◎" : "")).join("\n"));
+    line("蔵干の通変星", p => X.ZK[p.b].map(z => U.tsuhen(me, z[0])).join("\n"));
+    line("十二運", p => U.twelve(me, p.b), "", true);
+
+    const blk1 = el("div", "block");
+    blk1.appendChild(el("h2", null, "命式"));
+    blk1.appendChild(grid);
+    if (!t) blk1.appendChild(el("p", "note", "出生時刻が未入力のため時柱は算出していません。"));
+    blk1.appendChild(el("p", "note", "◎は司令(生まれた日の月律分野)。節入りから" + (kdays + 1) + "日目。"));
+    if (r.near) blk1.appendChild(el("p", "warn", "節入りの前後" + Math.round(r.gapMin) + "分以内です。節入り時刻の計算誤差(数分〜十数分)の範囲のため、年柱・月柱を確定できません。"));
+    if (r.warn) blk1.appendChild(el("p", "warn", "この日は節入りの日です。出生時刻によって年柱または月柱が変わります。プロフィールに出生時刻を入力してください。"));
+    body.appendChild(blk1);
+
+    const blk2 = el("div", "block");
+    blk2.appendChild(el("h2", null, "日主"));
+    blk2.appendChild(el("p", null, U.STEMS[me] + "(" + (me % 2 === 0 ? "陽" : "陰") + "の" + U.ELEM[Math.floor(me / 2)] + ")　" + ME_TEXT[me]));
+    body.appendChild(blk2);
+
+    const cnt = [0, 0, 0, 0, 0];
+    cols.forEach(p => { if (p){ cnt[Math.floor(p.s / 2)]++; cnt[U.BR_EL[p.b]]++; } });
+    const total = cols.filter(Boolean).length * 2;
+    const blk3 = el("div", "block");
+    blk3.appendChild(el("h2", null, "五行バランス(天干と地支)"));
+    const bal = el("div", "bal");
+    cnt.forEach((n, i) => {
+      bal.appendChild(el("span", "el" + i, U.ELEM[i]));
+      const bar = el("div", "bar el" + i); const f = el("i"); f.style.width = (total ? n / total * 100 : 0) + "%"; bar.appendChild(f);
+      bal.appendChild(bar);
+      bal.appendChild(el("span", "n", String(n)));
+    });
+    blk3.appendChild(bal);
+    body.appendChild(blk3);
+
+    const now = new Date();
+    const tp = U.dayPillar(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    const ts = U.tsuhen(me, tp.s);
+    const blk4 = el("div", "block");
+    blk4.appendChild(el("h2", null, "今日の日運"));
+    const kv = el("dl", "kv");
+    [["今日の干支", U.STEMS[tp.s] + U.BRANCHES[tp.b]], ["通変星", ts], ["十二運", U.twelve(me, tp.b) + "(" + TW_TEXT[U.twelve(me, tp.b)] + ")"]].forEach(([k, v]) => {
+      kv.append(el("dt", null, k), el("dd", null, v));
+    });
+    blk4.appendChild(kv);
+    blk4.appendChild(el("p", null, TS_TEXT[ts]));
+    body.appendChild(blk4);
+
+    const blkD = el("div", "block");
+    blkD.appendChild(el("h2", null, "大運"));
+    if (!profile.gender){
+      blkD.appendChild(el("p", null, "性別がプロフィールに未設定です。"));
+      const bb = el("button", "secondary", "プロフィールを入力");
+      bb.addEventListener("click", () => { goProfile(); $("p-gender").focus(); });
+      blkD.appendChild(bb);
+    } else {
+      const dn = X.daiun(b.y, b.m, b.d, t, profile.gender, r);
+      blkD.appendChild(el("p", null, (dn.fwd ? "順行" : "逆行") + "・起運 " + dn.startYears + "歳" + dn.startMonths + "か月"));
+      const age = (Date.now() - new Date(b.y, b.m - 1, b.d).getTime()) / (365.2425 * 86400000);
+      const tab = el("div", "dtab");
+      tab.style.gridTemplateColumns = "repeat(5,1fr)";
+      ["開始", "干支", "通変星", "十二運", "開始年"].forEach(h => tab.appendChild(el("div", "h", h)));
+      dn.periods.forEach(pp => {
+        const cur = age >= pp.ageFrom && age < pp.ageFrom + 10;
+        [Math.floor(pp.ageFrom) + "歳〜", U.STEMS[pp.s] + U.BRANCHES[pp.b], U.tsuhen(me, pp.s), U.twelve(me, pp.b), Math.floor(b.y + (b.m - 1) / 12 + pp.ageFrom) + "年〜"]
+          .forEach(v => tab.appendChild(el("div", cur ? "cur" : "", v)));
+      });
+      blkD.appendChild(tab);
+      if (age < dn.periods[0].ageFrom) blkD.appendChild(el("p", "note", "現在は起運前です(月柱の干支の時期)。太字は現在の大運。"));
+      else blkD.appendChild(el("p", "note", "太字は現在の大運。"));
+    }
+    body.appendChild(blkD);
+
+    const nowD = new Date(), jdNow = nowD.getTime() / 86400000 + 2440587.5, cyr = nowD.getFullYear();
+    const curAdj = jdNow < U.findTerm(cyr, 315) ? cyr - 1 : cyr;
+    const blkL = el("div", "block");
+    blkL.appendChild(el("h2", null, "流年"));
+    const ltab = el("div", "dtab");
+    ltab.style.gridTemplateColumns = "repeat(4,1fr)";
+    ["年", "干支", "通変星", "十二運"].forEach(h => ltab.appendChild(el("div", "h", h)));
+    X.liunian(curAdj, 10).forEach((ly, i) => {
+      [ly.y + "年", U.STEMS[ly.s] + U.BRANCHES[ly.b], U.tsuhen(me, ly.s), U.twelve(me, ly.b)].forEach(v => ltab.appendChild(el("div", i === 0 ? "cur" : "", v)));
+    });
+    blkL.appendChild(ltab);
+    blkL.appendChild(el("p", "note", "今年から10年分。年の切替は立春。"));
+    body.appendChild(blkL);
+
+    const blk5 = el("div", "block");
+    blk5.appendChild(el("h2", null, "算出に使った節入り"));
+    const kv2 = el("dl", "kv");
+    kv2.append(el("dt", null, "年柱の切替"), el("dd", null, "立春 " + U.fmtJST(r.risshun) + "(" + r.adjY + "年として算出)"));
+    kv2.append(el("dt", null, "月柱の切替"), el("dd", null, r.mTermName + " " + U.fmtJST(r.mTerm)));
+    blk5.appendChild(kv2);
+    body.appendChild(blk5);
+    note(body, "日本標準時、真太陽時の補正なし。日柱は0時で切替。節入りは太陽黄経から算出(公表値との差は最大12分、節入りの前後30分以内は警告表示)。蔵干の日数配当は一般的な一流派の値。大運の起運は3日を1年として換算。");
+  }
+
+  /* ----- 九星気学 ----- */
+  function renderKyusei(body){
+    body.replaceChildren();
+    const b = parseBirth(profile.birth);
+    if (!b) return needBox(body, "生年月日", "p-birth");
+    if (!profile.gender) return needBox(body, "性別", "p-gender");
+    const t = parseTime(profile.time);
+    const bz = U.bazi(b.y, b.m, b.d, t);
+    const k = X.kyuseiFull(new Date(), bz.adjY, bz.mIdx, profile.gender);
+    const S = U.STARS;
+    const starBox = (title, n) => {
+      const box = el("div", "sign");
+      box.appendChild(el("h2", null, title));
+      box.appendChild(el("div", "big", S[n - 1][0]));
+      box.appendChild(el("div", "meta", "五行 " + S[n - 1][1] + "・方位 " + S[n - 1][2]));
+      box.appendChild(el("p", null, S[n - 1][3]));
+      return box;
+    };
+    body.appendChild(starBox("本命星", k.me));
+    body.appendChild(starBox("月命星", k.monthStarBirth));
+    const kb = el("div", "sign");
+    kb.appendChild(el("h2", null, "傾斜宮"));
+    kb.appendChild(el("div", "big", k.keisha));
+    kb.appendChild(el("p", null, X.PALTEXT[k.keisha]));
+    body.appendChild(kb);
+    if (bz.warn) body.appendChild(el("p", "warn", "この日は節入りの日です。出生時刻によって本命星・月命星が変わります。"));
+
+    const listOr = arr => { const a = arr.filter(Boolean); return a.length ? a.join("、") : "なし"; };
+    const panels = k.boards.map(bd => {
+      const wrap = el("div", "block");
+      const ttl = bd.key === "year" ? k.curY + "年の年盤" : bd.key === "month" ? k.term + "月(節月)の月盤" : "今日の日盤(" + (k.yang ? "陽遁" : "陰遁") + ")";
+      wrap.appendChild(el("h2", null, ttl + "  中宮 " + S[bd.center - 1][0]));
+      const g = el("div", "board");
+      [3, 4, 5, 2, "c", 6, 1, 0, 7].forEach(p => {
+        const c = el("div", "cell");
+        if (p === "c"){
+          c.append(el("span", "dir", "中央"), el("span", "st", S[bd.center - 1][0].slice(0, 2)));
+          if (k.me === bd.center) c.classList.add("me");
+        } else {
+          c.append(el("span", "dir", U.DIRS[p]), el("span", "st", S[bd.stars[p] - 1][0].slice(0, 2)));
+          bd.flags[p].forEach(x => c.appendChild(el("span", "tag", x)));
+          if (bd.tier[p]) c.appendChild(el("span", "tag good", bd.tier[p]));
+          if (bd.stars[p] === k.me) c.classList.add("me");
+        }
+        g.appendChild(c);
+      });
+      wrap.appendChild(g);
+      const kv = el("dl", "kv"); kv.style.marginTop = "12px";
+      kv.append(el("dt", null, "凶方位"), el("dd", null, listOr(bd.flags.map((f, p) => (f.length ? U.DIRS[p] + "(" + f.join("・") + ")" : null)))));
+      kv.append(el("dt", null, "吉方位"), el("dd", null, listOr(bd.tier.map((tt, p) => (tt ? U.DIRS[p] + "(" + tt + ")" : null)))));
+      wrap.appendChild(kv);
+      return wrap;
+    });
+    const seg = el("div", "seg");
+    const btns = k.boards.map((bd, i) => {
+      const bt = el("button", null, bd.label);
+      bt.type = "button";
+      bt.addEventListener("click", () => { panels.forEach((pn, j) => { pn.hidden = j !== i; }); btns.forEach((x, j) => x.setAttribute("aria-pressed", j === i ? "true" : "false")); });
+      seg.appendChild(bt);
+      return bt;
+    });
+    body.appendChild(seg);
+    panels.forEach((pn, i) => { pn.hidden = i !== 0; body.appendChild(pn); });
+    btns.forEach((x, j) => x.setAttribute("aria-pressed", j === 0 ? "true" : "false"));
+
+    const sm = el("div", "block");
+    sm.appendChild(el("h2", null, "三盤とも吉の方位"));
+    sm.appendChild(el("p", null, listOr(k.all.map(p => U.DIRS[p]))));
+    body.appendChild(sm);
+    body.appendChild(el("p", "note", "太枠は本命星の位置。吉方位は、方位の星と本命星の五行が相生(大吉)・比和(吉)・本命星が生じる(小吉)で、かつ凶方位に該当しない方位。凶方位は五黄殺・暗剣殺・歳破/月破/日破・本命殺・本命的殺・定位対冲。"));
+    note(body, "年の切替は立春、月の切替は節入りで算出。日盤は冬至・夏至に最も近い甲子日を起点とする陽遁・陰遁で算出(置閏は行わない)。傾斜宮は本命星を中宮に入れた盤で月命星が座す宮。");
+  }
+
+  /* ----- タロット ----- */
+  const SPREADS = {
+    one: { name: "1枚引き", pos: ["今日の一枚"] },
+    three: { name: "3枚(過去・現在・未来)", pos: ["過去", "現在", "未来"] },
+    celtic: { name: "ケルト十字(10枚)", pos: ["現状", "障害", "潜在意識", "過去", "顕在意識", "近い未来", "自分の態度", "周囲の影響", "願望と不安", "最終結果"] }
+  };
+  function cardFace(c, rev){
+    const f = el("div", "tcard " + c.cls + (rev ? " rev" : ""));
+    f.setAttribute("role", "img");
+    f.setAttribute("aria-label", c.name + (rev ? "(逆位置)" : "(正位置)"));
+    f.append(el("span", "tc-top", c.top), el("span", "tc-glyph" + (c.major ? " major" : ""), c.glyph), el("span", "tc-name", c.major ? "" : c.short));
+    return f;
+  }
+  function renderTarot(body){
+    body.replaceChildren();
+    const ctl = el("div", "controls");
+    const l1 = el("label", null, "スプレッド"); l1.setAttribute("for", "t-spread");
+    const sel = el("select"); sel.id = "t-spread";
+    Object.keys(SPREADS).forEach(k => { const o = el("option", null, SPREADS[k].name); o.value = k; sel.appendChild(o); });
+    const l2 = el("label", null, "質問(任意)"); l2.setAttribute("for", "t-q");
+    const q = el("input"); q.type = "text"; q.id = "t-q"; q.maxLength = 80; q.placeholder = "例: 今月の仕事の見通し"; q.autocomplete = "off";
+    const go = el("button", "primary", "実行"); go.style.marginTop = "0";
+    ctl.append(l1, sel, l2, q, go);
+    const out = el("div");
+    body.append(ctl, out);
+    go.addEventListener("click", () => {
+      const sp = SPREADS[sel.value];
+      const cards = U.draw(sp.pos.length);
+      out.replaceChildren();
+      if (q.value.trim()) out.appendChild(el("p", "note", "質問: " + q.value.trim()));
+      cards.forEach((d, i) => {
+        const row = el("div", "trow");
+        row.appendChild(cardFace(d.card, d.rev));
+        const info = el("div");
+        info.appendChild(el("div", "pos", sp.pos[i]));
+        const nm = el("div", "cn", d.card.name + (d.rev ? "(逆位置)" : "(正位置)"));
+        nm.appendChild(el("span", "en", d.card.en));
+        info.appendChild(nm);
+        info.appendChild(el("p", null, d.rev ? d.card.rev : d.card.up));
+        row.appendChild(info);
+        out.appendChild(row);
+      });
+    });
+    note(body, "78枚(大アルカナ22・小アルカナ56)から重複なしで引きます。結果は毎回ランダムです。");
+  }
+
+  /* ----- 周易 ----- */
+  const LINE_NAME = X.LINE_NAME;
+  function hexDraw(lines, chg){
+    const h = el("div", "hex");
+    for (let i = 5; i >= 0; i--){
+      const l = el("div", "hl" + (chg && chg[i] ? " chg" : ""));
+      if (lines[i] === 1) l.appendChild(el("i")); else l.append(el("i"), el("i"));
+      h.appendChild(l);
+    }
+    return h;
+  }
+  function renderIching(body){
+    body.replaceChildren();
+    const ctl = el("div", "controls");
+    const l2 = el("label", null, "質問(任意)"); l2.setAttribute("for", "i-q");
+    const q = el("input"); q.type = "text"; q.id = "i-q"; q.maxLength = 80; q.placeholder = "例: 今月の仕事の見通し"; q.autocomplete = "off";
+    const go = el("button", "primary", "実行"); go.style.marginTop = "0";
+    ctl.append(l2, q, go);
+    const out = el("div");
+    body.append(ctl, out);
+    go.addEventListener("click", () => {
+      const r = U.cast();
+      out.replaceChildren();
+      if (q.value.trim()) out.appendChild(el("p", "note", "質問: " + q.value.trim()));
+      const wrap = el("div", "hexes");
+      const box = (title, hex, lines, chg) => {
+        const bx = el("div", "hexbox");
+        bx.appendChild(el("h2", null, title));
+        bx.appendChild(hexDraw(lines, chg));
+        bx.appendChild(el("div", "cn", hex.no + ". " + hex.name));
+        bx.appendChild(el("div", "pos", "上卦 " + hex.up + "・下卦 " + hex.low));
+        return bx;
+      };
+      wrap.appendChild(box("本卦", r.hex, r.base, r.chg));
+      if (r.alt) wrap.appendChild(box("之卦", r.alt, r.altLines, null));
+      out.appendChild(wrap);
+      out.appendChild(el("p", null, "本卦: " + r.hex.mean));
+      if (r.alt){
+        out.appendChild(el("p", null, "変爻: " + r.chg.map((c, i) => (c ? LINE_NAME[i] : null)).filter(Boolean).join("・")));
+        out.appendChild(el("p", null, "之卦: " + r.alt.mean));
+      }
+      const rd = X.hexReading(r);
+      const blk = el("div", "block");
+      blk.style.marginTop = "20px";
+      blk.appendChild(el("h2", null, "占断に用いる辞"));
+      blk.appendChild(el("p", "note", rd.rule));
+      rd.items.forEach(it => {
+        const row = el("div", "row");
+        const head = el("div", "head");
+        head.append(el("span", "name", it.label), el("span", "pos", it.tag));
+        row.append(head, el("p", null, it.text));
+        blk.appendChild(row);
+      });
+      out.appendChild(blk);
+      const all = (h, title) => {
+        const d = el("details");
+        d.appendChild(el("summary", null, title));
+        const x = X.hexAll(h);
+        const r0 = el("div", "row"); r0.append(el("div", "name", "卦辞"), el("p", null, x.kj)); d.appendChild(r0);
+        x.yao.forEach((tx, i) => { const rr = el("div", "row"); rr.append(el("div", "name", LINE_NAME[i]), el("p", null, tx)); d.appendChild(rr); });
+        return d;
+      };
+      out.appendChild(all(r.hex, "本卦の卦辞と六爻すべて"));
+      if (r.alt) out.appendChild(all(r.alt, "之卦の卦辞と六爻すべて"));
+    });
+    note(body, "三枚コイン法(6回)。赤い爻が変爻。変爻の読み方は朱子の変爻占法。卦辞・爻辞は意訳を含み、原文の逐語訳ではありません。");
+  }
+
+  /* ----- ルーン ----- */
+  function runeSvg(seg){
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 24 40"); svg.setAttribute("width", "36"); svg.setAttribute("height", "60"); svg.setAttribute("aria-hidden", "true");
+    const path = document.createElementNS(ns, "path");
+    path.setAttribute("d", seg.map(a => "M" + a[0] + " " + a[1] + "L" + a[2] + " " + a[3]).join(""));
+    path.setAttribute("fill", "none"); path.setAttribute("stroke", "currentColor");
+    path.setAttribute("stroke-width", "3"); path.setAttribute("stroke-linecap", "round"); path.setAttribute("stroke-linejoin", "round");
+    svg.appendChild(path);
+    return svg;
+  }
+  const RUNE_SPREADS = { one: { name: "1個引き", pos: ["今日の一個"] }, three: { name: "3個(過去・現在・未来)", pos: ["過去", "現在", "未来"] } };
+  function renderRune(body){
+    body.replaceChildren();
+    const ctl = el("div", "controls");
+    const l1 = el("label", null, "引き方"); l1.setAttribute("for", "r-spread");
+    const sel = el("select"); sel.id = "r-spread";
+    Object.keys(RUNE_SPREADS).forEach(k => { const o = el("option", null, RUNE_SPREADS[k].name); o.value = k; sel.appendChild(o); });
+    const l2 = el("label", null, "質問(任意)"); l2.setAttribute("for", "r-q");
+    const q = el("input"); q.type = "text"; q.id = "r-q"; q.maxLength = 80; q.placeholder = "例: 今月の仕事の見通し"; q.autocomplete = "off";
+    const go = el("button", "primary", "実行"); go.style.marginTop = "0";
+    ctl.append(l1, sel, l2, q, go);
+    const out = el("div");
+    body.append(ctl, out);
+    go.addEventListener("click", () => {
+      const sp = RUNE_SPREADS[sel.value];
+      const picks = U.shuffle(X.RUNES).slice(0, sp.pos.length).map(r => ({ r, rev: !!r.rev && U.rint(2) === 1 }));
+      out.replaceChildren();
+      if (q.value.trim()) out.appendChild(el("p", "note", "質問: " + q.value.trim()));
+      picks.forEach((d, i) => {
+        const row = el("div", "trow rune");
+        const card = el("div", "tcard" + (d.rev ? " rev" : ""));
+        card.setAttribute("role", "img");
+        card.setAttribute("aria-label", d.r.name + (d.rev ? "(逆位置)" : "(正位置)"));
+        card.append(el("span", "tc-top", d.r.name), runeSvg(d.r.seg), el("span", "tc-name", d.r.jp));
+        row.appendChild(card);
+        const info = el("div");
+        info.appendChild(el("div", "pos", sp.pos[i]));
+        info.appendChild(el("div", "cn", d.r.jp + (d.r.rev ? (d.rev ? "(逆位置)" : "(正位置)") : "(逆位置なし)")));
+        info.appendChild(el("p", null, d.rev ? d.r.rev : d.r.up));
+        row.appendChild(info);
+        out.appendChild(row);
+      });
+    });
+    note(body, "エルダー・フサルク24文字から重複なしで引きます。左右対称で向きのない9文字は逆位置なし。");
+  }
+
+  /* ----- 手相 ----- */
+  function renderPalm(body){
+    body.replaceChildren();
+    body.appendChild(el("p", null, "自分の手のひらを見て、当てはまる特徴を選んでください。選んだ項目だけ読みます。"));
+    body.appendChild(el("p", "note", "利き手(または右手)は現在の運勢、反対の手は生まれ持った素質を表すとされます。"));
+    const selects = [];
+    const make = (title, items) => {
+      const h = el("h2", null, title); h.style.margin = "16px 0 8px";
+      body.appendChild(h);
+      const grid = el("div", "pick");
+      items.forEach(it => {
+        const box = el("div");
+        const id = "palm-" + selects.length;
+        const lb = el("label", null, it.name); lb.setAttribute("for", id);
+        box.append(lb, el("span", "hint", it.hint));
+        const sel = el("select"); sel.id = id;
+        const o0 = el("option", null, "選択しない"); o0.value = ""; sel.appendChild(o0);
+        it.opts.forEach((o, i) => { const op = el("option", null, o[0]); op.value = String(i); sel.appendChild(op); });
+        box.appendChild(sel);
+        grid.appendChild(box);
+        selects.push({ it, sel });
+      });
+      body.appendChild(grid);
+    };
+    make("線", X.PALM.lines);
+    make("丘", X.PALM.mounts);
+    const go = el("button", "primary", "読む");
+    const out = el("div");
+    body.append(go, out);
+    go.addEventListener("click", () => {
+      out.replaceChildren();
+      const chosen = selects.filter(x => x.sel.value !== "");
+      if (!chosen.length){ out.appendChild(el("p", "error", "1つ以上選んでください。")); return; }
+      const blk = el("div", "block"); blk.style.marginTop = "20px";
+      chosen.forEach(x => {
+        const o = x.it.opts[+x.sel.value];
+        const row = el("div", "row");
+        const head = el("div", "head");
+        head.append(el("span", "name", x.it.name), el("span", "pos", o[0]));
+        row.append(head, el("p", null, o[1]));
+        blk.appendChild(row);
+      });
+      out.appendChild(blk);
+    });
+    note(body, "カメラや画像での判定は行いません。読みは一般的な手相の解釈で、娯楽としての結果です。");
+  }
+
+  /* ----- 姓名判断 ----- */
+  function renderSeimei(body){
+    body.replaceChildren();
+    const sEnt = [], nEnt = [];
+    const ctl = el("div", "controls");
+    const l1 = el("label", null, "姓"); l1.setAttribute("for", "s-sei");
+    const sei = el("input"); sei.type = "text"; sei.id = "s-sei"; sei.maxLength = 6; sei.placeholder = "例: 山田"; sei.autocomplete = "off";
+    const sBox = el("div", "stroke-row");
+    const l2 = el("label", null, "名"); l2.setAttribute("for", "s-mei");
+    const mei = el("input"); mei.type = "text"; mei.id = "s-mei"; mei.maxLength = 6; mei.placeholder = "例: 太郎"; mei.autocomplete = "off";
+    const nBox = el("div", "stroke-row");
+    ctl.append(l1, sei, sBox, l2, mei, nBox);
+    const go = el("button", "primary wide", "判定");
+    const err = el("p", "error"); err.setAttribute("role", "alert");
+    const out = el("div");
+    body.append(ctl, go, err, out, el("p", "note", "画数は内蔵の画数辞書(JIS第一・第二水準の漢字6,355字と人名用漢字の一部、ひらがな・カタカナ)から自動入力します。熊崎式に合わせ、部首の形を康熙字典の画数で数える補正(氵・扌・忄・犭=4画、艹=6画、辶=7画、阝=右7画・左8画、月(にくづき)=6画、王(玉偏)=5画、耂=6画)を適用しています。旧字体で数えるときは旧字体で入力してください。字体や流派で数え方が異なる文字(例: 「者」を含む字の点の有無)は新字体の数え方で入るため、必要に応じて数値を直接修正してください。"));
+    const capText = r => {
+      if (r.src === "kana") return r.adj ? r.base + " + " + r.label.replace("+", "") : "かな";
+      return r.adj ? r.base + " + " + r.label.replace("+", "") : "辞書";
+    };
+    const rebuild = (box, input, ents) => {
+      const chars = Array.from(input.value.trim());
+      const prev = ents.slice();
+      ents.length = 0;
+      box.replaceChildren();
+      chars.forEach((ch, i) => {
+        let en = prev[i] && prev[i].ch === ch ? prev[i] : null;
+        if (!en){
+          if (ch === "々" && i > 0 && ents[i - 1] && ents[i - 1].val){
+            en = { ch, val: ents[i - 1].val, cap: "直前と同じ", miss: false };
+          } else {
+            const r = KAKU.lookup(ch);
+            en = r.n === null ? { ch, val: undefined, cap: "辞書に未収録", miss: true } : { ch, val: r.n, cap: capText(r), miss: false };
+          }
+        }
+        ents[i] = en;
+        const cell = el("div", "sk" + (en.val ? "" : " miss"));
+        const cap = el("span", "cap", en.cap);
+        const n = el("input"); n.type = "number"; n.min = "1"; n.max = "40"; n.inputMode = "numeric";
+        n.setAttribute("aria-label", ch + "の画数");
+        if (en.val) n.value = en.val;
+        n.addEventListener("input", () => {
+          en.val = n.value === "" ? undefined : Number(n.value);
+          en.cap = "手入力"; en.miss = !en.val;
+          cap.textContent = en.miss ? "画数を入力" : "手入力";
+          cell.classList.toggle("miss", en.miss);
+        });
+        cell.append(el("span", "ch", ch), n, cap);
+        box.appendChild(cell);
+      });
+    };
+    sei.addEventListener("input", () => rebuild(sBox, sei, sEnt));
+    mei.addEventListener("input", () => rebuild(nBox, mei, nEnt));
+    go.addEventListener("click", () => {
+      err.textContent = ""; out.replaceChildren();
+      const S = sEnt.map(e => e.val), N = nEnt.map(e => e.val);
+      if (!S.length || !N.length){ err.textContent = "姓と名を入力してください。"; return; }
+      const bad = v => !Number.isInteger(v) || v < 1 || v > 40;
+      if (S.some(bad) || N.some(bad)){ err.textContent = "画数が未確定の文字があります(赤枠)。1〜40の画数を入力してください。"; return; }
+      const g = X.gokaku(S, N);
+      const defs = [["天格", g.ten, "先祖・家系の運。姓の画数(1字姓は霊数1を加算)。"], ["人格", g.jin, "主運。性格と中年期の運。姓の最後と名の最初の合計。"],
+        ["地格", g.chi, "初年運・基礎運。名の画数(1字名は霊数1を加算)。"], ["外格", g.gai, "対人運・社会運。天格+地格−人格。"], ["総格", g.sou, "総合運・晩年運。姓名すべての合計。"]];
+      const blk = el("div", "block"); blk.style.marginTop = "20px";
+      blk.appendChild(el("h2", null, "五格"));
+      defs.forEach(d => {
+        const sr = X.suri(d[1]);
+        const row = el("div", "gk");
+        const tt = el("div", "t");
+        tt.append(el("b", null, d[0] + " " + d[1] + "画(" + sr.n + ")"), el("span", null, sr.rank + "・" + sr.name));
+        row.append(tt, el("p", null, sr.text), el("p", "sub", d[2]));
+        blk.appendChild(row);
+      });
+      out.appendChild(blk);
+      const e = [X.gogyo(g.ten), X.gogyo(g.jin), X.gogyo(g.chi)];
+      const sb = el("div", "block");
+      sb.appendChild(el("h2", null, "三才配置"));
+      sb.appendChild(el("p", null, "天格 " + X.GOGYO[e[0]] + " ・ 人格 " + X.GOGYO[e[1]] + " ・ 地格 " + X.GOGYO[e[2]]));
+      sb.appendChild(el("p", null, "天格と人格: " + X.sansaiRel(e[0], e[1])));
+      sb.appendChild(el("p", null, "人格と地格: " + X.sansaiRel(e[1], e[2])));
+      out.appendChild(sb);
+      out.appendChild(el("p", "note", "熊崎式(霊数あり)。画数の五行は末尾の数(1・2=木、3・4=火、5・6=土、7・8=金、9・0=水)。81を超える画数は80を引いて判定。吉凶は流派で異なります。三才配置は五行の関係のみで、125通りの組み合わせ判断は含みません。"));
+    });
+  }
+
+  /* ----- 血液型 ----- */
+  const BLOOD = {
+    "A":"几帳面で慎重。周囲に気を配る。ストレスをためやすい。",
+    "B":"マイペースで好奇心旺盛。切り替えが早い。",
+    "O":"おおらかで面倒見が良い。目標に向かって粘る。",
+    "AB":"合理的で独自の感性。二面性がある。"
+  };
+  function renderBlood(body){
+    body.replaceChildren();
+    const bt = profile.blood;
+    if (!bt) return needBox(body, "血液型", "p-blood");
+    const box = el("div", "sign");
+    box.appendChild(el("h2", null, "血液型"));
+    box.appendChild(el("div", "big", bt + "型"));
+    box.appendChild(el("p", null, BLOOD[bt]));
+    body.appendChild(box);
+    dailyBlock(body, "blood|" + bt);
+    note(body, "血液型と性格・運勢の関連に科学的根拠はありません。娯楽としての結果です。");
+  }
+
+  /* ----- アイコン ----- */
+  const ICONS = {
+    omikuji: '<rect x="7.5" y="2.5" width="9" height="19"/><path d="M10 7h4M10 10.5h4"/><circle cx="12" cy="16.5" r="2"/>',
+    zodiac: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>',
+    bazi: '<rect x="3" y="4" width="3.4" height="16"/><rect x="7.9" y="4" width="3.4" height="16"/><rect x="12.7" y="4" width="3.4" height="16"/><rect x="17.6" y="4" width="3.4" height="16"/>',
+    kyusei: '<rect x="3.5" y="3.5" width="17" height="17"/><path d="M9.2 3.5v17M14.8 3.5v17M3.5 9.2h17M3.5 14.8h17"/>',
+    tarot: '<rect x="6" y="2.5" width="12" height="19" rx="1.5"/><path d="M12 7.5l1.4 3 3.2.4-2.4 2.2.7 3.2L12 14.7 9.1 16.3l.7-3.2-2.4-2.2 3.2-.4z"/>',
+    iching: '<path d="M4 3.5h16M4 7.1h7M13 7.1h7M4 10.7h16M4 14.3h16M4 17.9h7M13 17.9h7M4 21.5h7M13 21.5h7"/>',
+    rune: '<path d="M8 3v18M8 8.5l8-5.5M8 15l8-5.5"/>',
+    palm: '<circle cx="12" cy="12" r="9.5"/><path d="M5.5 7c6 1 9.5 5 9.5 11M5 12.5c5 0 9 2 12 5.5M8.5 4.5c-1 5 0 10 3 15"/>',
+    seimei: '<rect x="3.5" y="3.5" width="17" height="17"/><path d="M8 8.5h8M12 8.5V16M9 12.3h6M8 16h8"/>',
+    blood: '<path d="M12 3c3.5 4.5 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 2.5-6.5 6-11z"/><path d="M9.5 15a2.5 2.5 0 0 0 2 2.5"/>'
+  };
+  function icon(id){
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    svg.innerHTML = ICONS[id];
+    return svg;
+  }
+  const ICOLOR = { omikuji: "#FF9500", zodiac: "#5856D6", bazi: "#A2845E", kyusei: "#32ADE6", tarot: "#AF52DE", iching: "#30B0C7", rune: "#34A853", palm: "#FF2D55", seimei: "#007AFF", blood: "#FF3B30" };
+  function chevron(){
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 8 14");
+    svg.setAttribute("class", "chev");
+    svg.setAttribute("aria-hidden", "true");
+    svg.innerHTML = '<path d="M1.5 1.5 6.5 7l-5 5.5"/>';
+    return svg;
+  }
+
+  /* ----- 登録 ----- */
+  const TOOLS = [
+    { id: "omikuji", name: "今日の運勢", desc: "おみくじと数秘術(運命数)", need: "生年月日" },
+    { id: "zodiac", name: "星座占い", desc: "太陽・月・上昇星座と今日の運勢", need: "生年月日(上昇星座は出生時刻と出生地)", render: renderZodiac },
+    { id: "bazi", name: "四柱推命", desc: "命式・蔵干・通変星・十二運・五行・大運・流年", need: "生年月日(出生時刻・性別は任意)", render: renderBazi },
+    { id: "kyusei", name: "九星気学", desc: "本命星・月命星・傾斜宮・年月日盤と吉凶方位", need: "生年月日・性別", render: renderKyusei },
+    { id: "tarot", name: "タロット", desc: "78枚。1枚・3枚・ケルト十字", need: "", render: renderTarot },
+    { id: "iching", name: "周易", desc: "三枚コイン法。64卦の卦辞・爻辞と変爻", need: "", render: renderIching },
+    { id: "rune", name: "ルーン", desc: "エルダー・フサルク24文字。1個・3個", need: "", render: renderRune },
+    { id: "palm", name: "手相", desc: "線と丘の特徴を選んで読む(自己判定)", need: "", render: renderPalm },
+    { id: "seimei", name: "姓名判断", desc: "五格・81画数理・三才の五行(画数辞書内蔵)", need: "氏名", render: renderSeimei },
+    { id: "blood", name: "血液型", desc: "性格傾向と今日の運勢", need: "血液型", render: renderBlood }
+  ];
+  const holder = $("tools");
+  TOOLS.forEach(t => {
+    const li = el("li");
+    li.dataset.key = (t.name + " " + t.desc).toLowerCase();
+    const btn = el("button", "item");
+    btn.type = "button";
+    const tile = el("span", "icon-tile");
+    tile.style.setProperty("--c", ICOLOR[t.id]);
+    tile.appendChild(icon(t.id));
+    const txt = el("span", "txt");
+    txt.append(el("span", "t", t.name), el("span", "s", t.desc));
+    btn.append(tile, txt, chevron());
+    btn.addEventListener("click", () => open(t.id));
+    li.appendChild(btn);
+    $("tiles").appendChild(li);
+
+    if (t.id === "omikuji"){
+      const sec = $("tool-omikuji");
+      views[t.id] = { section: sec, body: sec, title: t.name, render: () => {
+        if (!$("birth").value && profile.birth) $("birth").value = profile.birth;
+      } };
+    } else {
+      const sec = el("section", "page");
+      sec.hidden = true;
+      sec.append(el("h1", "large-title", t.name), el("p", "subtitle", t.desc + (t.need ? "　必要: " + t.need : "")));
+      const body = el("div");
+      sec.appendChild(body);
+      holder.appendChild(sec);
+      views[t.id] = { section: sec, body, title: t.name, render: t.render };
+    }
+  });
+
+  /* ----- プロフィール入力 ----- */
+  (function(){
+    const sel = $("p-place");
+    const o0 = document.createElement("option"); o0.value = ""; o0.textContent = "未設定"; sel.appendChild(o0);
+    X.PLACES.forEach(pl => { const o = document.createElement("option"); o.value = pl[0]; o.textContent = pl[0]; sel.appendChild(o); });
+    const oc = document.createElement("option"); oc.value = "custom"; oc.textContent = "その他(緯度・経度を入力)"; sel.appendChild(oc);
+    sel.addEventListener("change", () => { $("p-ll").hidden = sel.value !== "custom"; });
+  })();
+  function fill(){
+    $("p-place").value = profile.place || "";
+    $("p-ll").hidden = profile.place !== "custom";
+    $("p-lat").value = profile.lat === undefined ? "" : profile.lat;
+    $("p-lon").value = profile.lon === undefined ? "" : profile.lon;
+    $("p-birth").value = profile.birth || "";
+    $("p-time").value = profile.time || "";
+    $("p-gender").value = profile.gender || "";
+    $("p-blood").value = profile.blood || "";
+  }
+  const today = new Date();
+  $("p-birth").max = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
+  fill();
+  $("p-save").addEventListener("click", () => {
+    const bv = $("p-birth").value;
+    if (bv){
+      const d = new Date(bv + "T00:00:00");
+      if (!parseBirth(bv) || isNaN(d.getTime()) || d > new Date() || d < new Date("1900-01-01T00:00:00")){
+        $("p-msg").textContent = "生年月日は1900年以降の今日以前の日付を入力してください。";
+        return;
+      }
+    }
+    const place = $("p-place").value;
+    if (place === "custom"){
+      const la = $("p-lat").value, lo = $("p-lon").value;
+      if (la === "" || lo === "" || Math.abs(Number(la)) > 90 || Math.abs(Number(lo)) > 180){
+        $("p-msg").textContent = "緯度(-90〜90)と経度(-180〜180)を入力してください。";
+        return;
+      }
+    }
+    profile = { birth: bv, time: $("p-time").value, gender: $("p-gender").value, blood: $("p-blood").value, place, lat: $("p-lat").value, lon: $("p-lon").value };
+    persist();
+    $("p-msg").textContent = "保存しました。";
+  });
+  $("p-clear").addEventListener("click", () => {
+    profile = {};
+    try { localStorage.removeItem(PKEY); } catch (e) {}
+    fill();
+    $("p-msg").textContent = "消去しました。";
+  });
+  /* ----- 検索(ホーム) ----- */
+  function markFirst(){
+    let first = true;
+    $("tiles").querySelectorAll("li").forEach(li => { li.classList.remove("is-first"); if (!li.hidden && first){ li.classList.add("is-first"); first = false; } });
+  }
+  $("q").addEventListener("input", () => {
+    const k = $("q").value.trim().toLowerCase();
+    let n = 0;
+    $("tiles").querySelectorAll("li").forEach(li => { const hit = !k || li.dataset.key.indexOf(k) !== -1; li.hidden = !hit; if (hit) n++; });
+    $("no-result").hidden = n > 0;
+    markFirst();
+  });
+  markFirst();
+
+  /* ----- タブ・戻る・スクロール ----- */
+  document.querySelectorAll("#tabbar .tab").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
+  navBack.addEventListener("click", goHome);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  let swipeX = null, swipeY = 0;
+  document.addEventListener("touchstart", e => { const t = e.touches[0]; swipeX = t.clientX < 24 ? t.clientX : null; swipeY = t.clientY; }, { passive: true });
+  document.addEventListener("touchend", e => {
+    if (swipeX === null || navBack.hidden) return;
+    const t = e.changedTouches[0];
+    if (t.clientX - swipeX > 80 && Math.abs(t.clientY - swipeY) < 60) goHome();
+    swipeX = null;
+  }, { passive: true });
+
+  /* ----- 外観(テーマ・Liquid Glass・文字サイズ) ----- */
+  const UKEY = "uranai:ui";
+  const UDEF = { theme: "auto", glass: 70, scale: 100 };
+  let ui = Object.assign({}, UDEF);
+  try {
+    const raw = JSON.parse(localStorage.getItem(UKEY) || "{}");
+    if (raw && typeof raw === "object") ui = Object.assign(ui, raw);
+  } catch (e) {}
+  const clampN = (v, lo, hi, d) => { v = Number(v); return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d; };
+  function applyUI(){
+    ui.glass = clampN(ui.glass, 0, 100, 70);
+    ui.scale = clampN(ui.scale, 85, 135, 100);
+    if (["auto", "light", "dark"].indexOf(ui.theme) < 0) ui.theme = "auto";
+    const r = document.documentElement;
+    if (ui.theme === "auto") r.removeAttribute("data-theme"); else r.setAttribute("data-theme", ui.theme);
+    r.style.setProperty("--glass-t", String(ui.glass / 100));
+    r.style.setProperty("--scale", String(ui.scale / 100));
+    $("glass").value = ui.glass;
+    $("textsize").value = ui.scale;
+    $("glass").style.setProperty("--p", ui.glass + "%");
+    $("textsize").style.setProperty("--p", ((ui.scale - 85) / 50 * 100) + "%");
+    document.querySelectorAll("#theme-seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === ui.theme ? "true" : "false"));
+  }
+  function saveUI(){ try { localStorage.setItem(UKEY, JSON.stringify(ui)); } catch (e) {} }
+  document.querySelectorAll("#theme-seg button").forEach(b => b.addEventListener("click", () => { ui.theme = b.dataset.v; applyUI(); saveUI(); }));
+  $("glass").addEventListener("input", () => { ui.glass = $("glass").value; applyUI(); saveUI(); });
+  $("textsize").addEventListener("input", () => { ui.scale = $("textsize").value; applyUI(); saveUI(); });
+  $("look-reset").addEventListener("click", () => { ui = Object.assign({}, UDEF); applyUI(); saveUI(); });
+  applyUI();
+  onScroll();
+})();
+</script>
+</body>
+</html>
