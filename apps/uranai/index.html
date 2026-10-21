@@ -345,6 +345,7 @@ details .row{padding:8px 0}
       <input type="range" id="textsize" min="85" max="135" step="5" aria-label="文字サイズ">
     </div></div>
     <button type="button" class="secondary wide" id="look-reset">初期値に戻す</button>
+    <p class="footnote" id="app-version">V2: 統一指示書 v5 対応（データ schema v1）</p>
   </section>
 
   <!-- 今日の運勢(既存ロジックの画面) -->
@@ -391,7 +392,11 @@ details .row{padding:8px 0}
 
   var $ = function(id){ return document.getElementById(id); };
   var WD = ["日","月","火","水","木","金","土"];
-  var STORE_KEY = "uranai:birth";
+  var STORE_KEY = "uranai:birth";            /* v0(旧キー): 移行元。削除しない */
+  var STORE_KEY_V1 = "uranai:birth:v1";      /* schema v1 */
+  var SCHEMA_V = 1;
+  var readFail = false;                       /* 読込失敗時は保存を止める(§4-6) */
+  var normBirth = function(s){ return (typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s)) ? s : ""; };
 
   /* ---------- データ ---------- */
   var RANKS = [
@@ -613,8 +618,23 @@ details .row{padding:8px 0}
     $("result").hidden = false;
   }
 
-  function save(v){ try { localStorage.setItem(STORE_KEY, v); } catch(e){} }
-  function load(){ try { return localStorage.getItem(STORE_KEY) || ""; } catch(e){ return ""; } }
+  function save(v){
+    if (readFail) return false;
+    try { localStorage.setItem(STORE_KEY_V1, JSON.stringify({ v: SCHEMA_V, birth: normBirth(v) })); return true; } catch(e){ return false; }
+  }
+  function load(){
+    try {
+      var raw = localStorage.getItem(STORE_KEY_V1);
+      if (raw !== null){
+        var o = JSON.parse(raw);
+        if (o && o.v === SCHEMA_V) return normBirth(o.birth);
+        readFail = true; return "";
+      }
+      var legacy = normBirth(localStorage.getItem(STORE_KEY) || "");
+      if (legacy) save(legacy);   /* 旧キーは残したまま、v1 の写しを作る */
+      return legacy;
+    } catch(e){ readFail = true; return ""; }
+  }
 
   var now = new Date();
   $("today").textContent = now.getFullYear() + "年" + (now.getMonth() + 1) + "月" + now.getDate() + "日（" + WD[now.getDay()] + "）";
@@ -625,7 +645,7 @@ details .row{padding:8px 0}
     var err = validBirth(v);
     $("error").textContent = err;
     if (err) return;
-    save(v);
+    if (!save(v) && readFail) $("error").textContent = "保存データを読み込めないため、保存を停止しています。";
     show(v);
   });
   $("birth").addEventListener("keydown", function(e){ if (e.key === "Enter") $("go").click(); });
@@ -637,6 +657,7 @@ details .row{padding:8px 0}
   });
 
   var saved = load();
+  if (readFail) $("error").textContent = "保存データを読み込めないため、保存を停止しています。";
   if (saved){
     $("birth").value = saved;
     if (!validBirth(saved)) show(saved);
@@ -1464,12 +1485,49 @@ const KAKU = (function(){
   const U = UR, X = UX;
   const $ = id => document.getElementById(id);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-  const PKEY = "uranai:profile";
+  const PKEY_LEGACY = "uranai:profile";     /* v0(旧キー): 移行元。消去時のみ削除 */
+  const PKEY = "uranai:profile:v1";         /* schema v1 */
+  const SCHEMA_V = 1;
+  let readFail = false;                      /* 読込失敗時は保存を止める(§4-6) */
 
   /* ----- プロフィール ----- */
+  /* NORM(§4-2): 保存・読込・消去のすべてでこの関数を通す */
+  function normProfile(p){
+    p = (p && typeof p === "object") ? p : {};
+    const str = (x, re) => (typeof x === "string" && (!re || re.test(x))) ? x : "";
+    const num = x => (typeof x === "string" || typeof x === "number") ? String(x) : "";
+    return {
+      v: SCHEMA_V,
+      birth: str(p.birth, /^\d{4}-\d{2}-\d{2}$/),
+      time: str(p.time, /^\d{2}:\d{2}$/),
+      gender: ["", "m", "f"].indexOf(p.gender) >= 0 ? p.gender : "",
+      blood: ["", "A", "B", "O", "AB"].indexOf(p.blood) >= 0 ? p.blood : "",
+      place: str(p.place),
+      lat: num(p.lat),
+      lon: num(p.lon)
+    };
+  }
   let profile = {};
-  try { profile = JSON.parse(localStorage.getItem(PKEY) || "{}") || {}; } catch (e) { profile = {}; }
-  function persist(){ try { localStorage.setItem(PKEY, JSON.stringify(profile)); } catch (e) {} }
+  (function loadProfile(){
+    try {
+      const raw = localStorage.getItem(PKEY);
+      if (raw !== null){
+        const o = JSON.parse(raw);
+        if (o && o.v === SCHEMA_V){ profile = normProfile(o); return; }
+        readFail = true; return;
+      }
+      const legacy = localStorage.getItem(PKEY_LEGACY);
+      if (legacy !== null){
+        profile = normProfile(JSON.parse(legacy));
+        try { localStorage.setItem(PKEY, JSON.stringify(profile)); } catch (e) {}   /* 旧キーは残す */
+      }
+    } catch (e) { readFail = true; profile = {}; }
+  })();
+  function persist(){
+    if (readFail) return false;
+    try { localStorage.setItem(PKEY, JSON.stringify(normProfile(profile))); return true; } catch (e) { return false; }
+  }
+  if (readFail) $("p-msg").textContent = "保存データを読み込めないため、保存を停止しています。「プロフィールを消去」で初期化できます。";
   function parseBirth(s){
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || "");
     return m ? { y: +m[1], m: +m[2], d: +m[3] } : null;
@@ -2285,12 +2343,15 @@ const KAKU = (function(){
       }
     }
     profile = { birth: bv, time: $("p-time").value, gender: $("p-gender").value, blood: $("p-blood").value, place, lat: $("p-lat").value, lon: $("p-lon").value };
-    persist();
+    if (!persist()){
+      $("p-msg").textContent = readFail ? "保存データを読み込めないため、保存を停止しています。「プロフィールを消去」で初期化できます。" : "保存できませんでした。";
+      return;
+    }
     $("p-msg").textContent = "保存しました。";
   });
   $("p-clear").addEventListener("click", () => {
     profile = {};
-    try { localStorage.removeItem(PKEY); } catch (e) {}
+    try { localStorage.removeItem(PKEY); localStorage.removeItem(PKEY_LEGACY); readFail = false; } catch (e) {}
     fill();
     $("p-msg").textContent = "消去しました。";
   });
@@ -2322,13 +2383,22 @@ const KAKU = (function(){
   }, { passive: true });
 
   /* ----- 外観(テーマ・Liquid Glass・文字サイズ) ----- */
-  const UKEY = "uranai:ui";
+  const UKEY_LEGACY = "uranai:ui";           /* v0(旧キー): 移行元 */
+  const UKEY = "uranai:ui:v1";               /* schema v1 */
   const UDEF = { theme: "auto", glass: 70, scale: 100 };
   let ui = Object.assign({}, UDEF);
+  let uiReadFail = false;
   try {
-    const raw = JSON.parse(localStorage.getItem(UKEY) || "{}");
-    if (raw && typeof raw === "object") ui = Object.assign(ui, raw);
-  } catch (e) {}
+    const raw = localStorage.getItem(UKEY);
+    let o = null;
+    if (raw !== null){
+      o = JSON.parse(raw);
+      if (!o || o.v !== SCHEMA_V){ uiReadFail = true; o = null; }
+    } else {
+      o = JSON.parse(localStorage.getItem(UKEY_LEGACY) || "{}");
+    }
+    if (o && typeof o === "object") ui = Object.assign(ui, o);
+  } catch (e) { uiReadFail = true; }
   const clampN = (v, lo, hi, d) => { v = Number(v); return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d; };
   function applyUI(){
     ui.glass = clampN(ui.glass, 0, 100, 70);
@@ -2344,7 +2414,10 @@ const KAKU = (function(){
     $("textsize").style.setProperty("--p", ((ui.scale - 85) / 50 * 100) + "%");
     document.querySelectorAll("#theme-seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === ui.theme ? "true" : "false"));
   }
-  function saveUI(){ try { localStorage.setItem(UKEY, JSON.stringify(ui)); } catch (e) {} }
+  function saveUI(){
+    if (uiReadFail) return;
+    try { localStorage.setItem(UKEY, JSON.stringify({ v: SCHEMA_V, theme: ui.theme, glass: ui.glass, scale: ui.scale })); } catch (e) {}
+  }
   document.querySelectorAll("#theme-seg button").forEach(b => b.addEventListener("click", () => { ui.theme = b.dataset.v; applyUI(); saveUI(); }));
   $("glass").addEventListener("input", () => { ui.glass = $("glass").value; applyUI(); saveUI(); });
   $("textsize").addEventListener("input", () => { ui.scale = $("textsize").value; applyUI(); saveUI(); });

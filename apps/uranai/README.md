@@ -1,4 +1,4 @@
-# 占い（Almanac）
+# 占い（Almanac）V2
 
 単一HTML（`index.html`）で動くブラウザ完結型の占いアプリ。サーバー・外部通信・APIキーを使わない。
 
@@ -39,3 +39,26 @@ SHA-256: `dd67475b9d5c788af64d3505110b28bef7320ef92d30a83491d8cac3b1f9a9f8`（18
 - 有効化（オーナーの操作が必要）: リポジトリ Settings → Pages → Build and deployment → Source を「GitHub Actions」に設定する。Claude 側からは GitHub API が遮断されており、設定できない。
 - 未確認: プライベートリポジトリでの Pages 利用には GitHub の有料プランが必要な場合がある（プラン条件は未確認）。有効化後、このURLを開いて表示を確認すること。
 - 注意: Pages は公開配信のため、リポジトリ内のソース（HTML）は誰でも閲覧できる。個人データは端末内にのみ保存される（前述）。
+
+## V2 更新（統一指示書 v5、2026-10-22）
+
+- データ schema v1: 保存キーを `uranai:profile:v1` / `uranai:birth:v1` / `uranai:ui:v1` に変更（`v: 1` を持つ）。
+- 移行: 旧キー（`uranai:profile` / `uranai:birth` / `uranai:ui`）は削除せず残す。v1 がなければ旧キーから写しを作る。
+- NORM: 保存・読込・消去のすべてで正規化（不正値は空、未知のキーは破棄）。
+- 読込失敗時（v1 が壊れている等）は保存を停止し、既存データを上書きしない。「プロフィールを消去」で初期化できる。
+- 版表示: 外観タブの末尾に「V2」を表示。
+- 計算ロジック・定数・画面構造は変更していない（差分は保存・読込・消去・外観保存・版表示のみ）。
+- 旧版: `versions/index_v1_pre-schema.html`（ロールバック用）。
+- 監査: `AUDIT_v5.md`（同一作成者による模擬監査。独立監査ではない）。
+- 正本: GitHub（`apps/uranai/index.html`）。Artifact（PvUJ1G…）は V1 のまま。
+
+### テスト
+
+```
+cd apps/uranai && npm i jsdom@24
+node tests/smoke.js
+node tests/storage.test.js   # 7件（移行・NORM・読込失敗・消去・外観・版表示）
+node tests/tabs.test.js      # 全10ツールの開閉・ページエラー0
+```
+
+ステータス: jsdom で通過（2026-10-22）。iPhone Safari 実機は未確認。
