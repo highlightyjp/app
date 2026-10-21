@@ -1,0 +1,37 @@
+name: coorde-fetch
+on:
+  workflow_dispatch:
+    inputs:
+      rid: { description: request id, required: true }
+      urls: { description: JSON array of URLs (allowlisted hosts only), required: true }
+      meta: { description: page metadata, required: false, default: "false" }
+      links: { description: extract links, required: false, default: "false" }
+permissions:
+  contents: write
+concurrency:
+  group: coorde-fetch
+  cancel-in-progress: false
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: fetch
+        env:
+          RID: ${{ inputs.rid }}
+          URLS: ${{ inputs.urls }}
+          META: ${{ inputs.meta }}
+          LINKS: ${{ inputs.links }}
+        run: node coorde-fetch.js
+      - name: commit
+        run: |
+          find coorde-relay -name '*.json' -mmin +1440 -delete 2>/dev/null || true
+          git config user.name "coorde-relay"
+          git config user.email "noreply@github.com"
+          git add -A coorde-relay
+          git commit -m "relay ${{ inputs.rid }}" || exit 0
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 3; done
