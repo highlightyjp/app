@@ -31,3 +31,11 @@ SHA-256: `dd67475b9d5c788af64d3505110b28bef7320ef92d30a83491d8cac3b1f9a9f8`（18
 - 占いの結果は娯楽目的。医療・投資・法律の判断に使わない。
 - 個人情報（生年月日・出生時刻・性別・血液型）は端末内に保存される。共有端末では消去すること（プロフィールの「消去」）。
 - 公開範囲（リンクを知っている全員／本人のみ）は公開先の表示で確認する。
+
+## GitHub Pages 公開
+
+- 配信元: `.github/workflows/pages-uranai.yml`。`apps/uranai/index.html` のみを Pages のルートに配置する（tests は含めない）。
+- 公開URL（予定）: https://highlightyjp.github.io/app/
+- 有効化（オーナーの操作が必要）: リポジトリ Settings → Pages → Build and deployment → Source を「GitHub Actions」に設定する。Claude 側からは GitHub API が遮断されており、設定できない。
+- 未確認: プライベートリポジトリでの Pages 利用には GitHub の有料プランが必要な場合がある（プラン条件は未確認）。有効化後、このURLを開いて表示を確認すること。
+- 注意: Pages は公開配信のため、リポジトリ内のソース（HTML）は誰でも閲覧できる。個人データは端末内にのみ保存される（前述）。
