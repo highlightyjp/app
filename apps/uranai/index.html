@@ -345,7 +345,7 @@ details .row{padding:8px 0}
       <input type="range" id="textsize" min="85" max="135" step="5" aria-label="文字サイズ">
     </div></div>
     <button type="button" class="secondary wide" id="look-reset">初期値に戻す</button>
-    <p class="footnote" id="app-version">V2: 統一指示書 v5 対応（データ schema v1）</p>
+    <p class="footnote" id="app-version">V3: 統一指示書 v5 対応（データ schema v1）</p>
   </section>
 
   <!-- 今日の運勢(既存ロジックの画面) -->
@@ -807,7 +807,11 @@ const UR = (function(){
     const di = mod(jdn(y, m, d) + 49, 60);
     const ds = di % 10, db = di % 12;
     let hour = null;
-    if (time){ const hb = Math.floor(mod(time.h + 1, 24) / 2); hour = { s: mod(mod(ds, 5) * 2 + hb, 10), b: hb }; }
+    if (time){
+      const hb = Math.floor(mod(time.h + 1, 24) / 2);
+      const dsH = time.h === 23 ? (ds + 1) % 10 : ds;   /* 23時台(晩子時)の時柱は翌日の日干から求める。日柱は当日のまま */
+      hour = { s: mod(mod(dsH, 5) * 2 + hb, 10), b: hb };
+    }
     const L = mod(315 + 30 * mIdx, 360);
     const mTerm = Math.max(...[y - 1, y].map(yr => findTerm(yr, L)).filter(t => t <= jd));
     let warn = false;
@@ -1840,7 +1844,7 @@ const KAKU = (function(){
     kv2.append(el("dt", null, "月柱の切替"), el("dd", null, r.mTermName + " " + U.fmtJST(r.mTerm)));
     blk5.appendChild(kv2);
     body.appendChild(blk5);
-    note(body, "日本標準時、真太陽時の補正なし。日柱は0時で切替。節入りは太陽黄経から算出(公表値との差は最大12分、節入りの前後30分以内は警告表示)。蔵干の日数配当は一般的な一流派の値。大運の起運は3日を1年として換算。");
+    note(body, "日本標準時、真太陽時の補正なし。日柱は0時で切替。23時台の時柱は翌日の日干から求める(日柱は当日のまま)。節入りは太陽黄経から算出(国立天文台の公表値72点(2022〜2027年)との差は最大13分、節入りの前後30分以内は警告表示)。蔵干の日数配当は一般的な一流派の値。大運の起運は3日を1年として換算。");
   }
 
   /* ----- 九星気学 ----- */

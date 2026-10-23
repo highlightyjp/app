@@ -1,4 +1,4 @@
-# 占い（Almanac）V2
+# 占い（Almanac）V3
 
 単一HTML（`index.html`）で動くブラウザ完結型の占いアプリ。サーバー・外部通信・APIキーを使わない。
 
@@ -62,3 +62,17 @@ node tests/tabs.test.js      # 全10ツールの開閉・ページエラー0
 ```
 
 ステータス: jsdom で通過（2026-10-22）。iPhone Safari 実機は未確認。
+
+## V3 仕様見直し（2026-10-24）
+
+- 四柱推命: 23時台（晩子時）の時柱の天干を、翌日の日干から求めるよう修正。日柱は当日のまま（0時で切替）。出生時刻が23時台の場合、時柱が変わる。
+- 四柱推命の注記: 節入り精度を「最大13分」に更新（国立天文台 暦要項 2022〜2027年の公表値72点で実測 最大12.6分、警告しきい値は30分のまま）。
+- 回帰テスト追加:
+  - `tests/nao_terms.test.js`: 節入り72点（出典: `tests/data/nao_terms.json`）
+  - `tests/spec.test.js`: 時柱の連続性、周易64卦の順序（出典: `tests/data/hexagrams.json`）、タロット78枚、ルーン24文字
+- 詳細・未確認事項は `AUDIT_v5.md` の「V3 仕様見直し」。
+
+```
+node tests/nao_terms.test.js   # 節入り: 最大13分以内
+node tests/spec.test.js        # 7件
+```
