@@ -76,3 +76,17 @@ node tests/tabs.test.js      # 全10ツールの開閉・ページエラー0
 node tests/nao_terms.test.js   # 節入り: 最大13分以内
 node tests/spec.test.js        # 7件
 ```
+
+## V4 横スクロール対策・UI改善（2026-10-24）
+
+- 原因: (1) 画面遷移アニメーション中に `main` が一時的に横へ +10px 超過（320/390px幅で検出）。(2) 大運表の5列目が狭幅で切れる。(3) 命式の大きな干支が 320px・文字135%で切れる。
+- 修正: `main{overflow-x:clip}`（非対応環境は `html,body{overflow-x:hidden}`）、表を `minmax(0,…)` グリッド化、大運表を4列化（開始列に「年齢＋西暦」を縦積み）、命式文字を `min(1.75rem,8.5vw)`、`img/svg/canvas` の `max-width:100%`、入力・選択の `min-width:0`。
+- 取り入れた考え方（既存パッケージのモバイル表で一般的な「列の折りたたみ」「はみ出しをコンテナ内で処理」。実装は自作、資産・コードの流用なし）。
+- 計算ロジック・定数・保存スキーマは変更なし。
+- 新規テスト `tests/layout.test.js`（Chromium/Playwright）: 幅320/360/390/430 × 文字100/135%、全ツール・全スプレッドを走査。V4: 368件・問題0。修正前の版: 38件（320/390幅）。
+
+```
+NODE_PATH=/opt/npm-tools/node_modules node tests/layout.test.js
+```
+
+未確認: iPhone Safari（WebKit）実機。Chromium のみで検証（`<input type=date>` の固有幅など WebKit 差異は未検証）。

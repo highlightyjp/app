@@ -44,6 +44,11 @@ html{font-size:calc(16px * var(--scale));-webkit-text-size-adjust:100%;color-sch
 body{margin:0;background:var(--bg);color:var(--label);font-family:var(--font);font-size:1.0625rem;line-height:1.4;-webkit-font-smoothing:antialiased}
 main{max-width:640px;margin:0 auto;
   padding:calc(env(safe-area-inset-top,0px) + 60px) max(16px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom,0px) + 116px) max(16px,env(safe-area-inset-left))}
+/* 横スクロール防止: 画面遷移アニメーション(右から26pxのスライド)でページ幅が一時的に広がるのを、枠内で切り落とす。
+   (パッケージ製品のコンテナ内オーバーフロー制御の考え方。overflow:clip は スクロール領域を作らない) */
+@supports (overflow:clip){ main{overflow-x:clip} }
+@supports not (overflow:clip){ html,body{overflow-x:hidden} }
+img,svg,canvas,video{max-width:100%}
 [hidden]{display:none !important}
 h1,h2,h3,p,ul,dl,dd{margin:0}
 ul{padding:0;list-style:none}
@@ -118,7 +123,7 @@ input[type=date],input[type=time],input[type=text],input[type=number],select{
   font:inherit;font-size:1.0625rem;color:var(--label);background:var(--fill);border:0;border-radius:var(--r-s);
   padding:10px 14px;min-height:44px;width:100%;-webkit-appearance:none;appearance:none;outline:0;
 }
-.form-row input,.form-row select{width:auto;min-height:38px;padding:7px 12px;text-align:right;max-width:100%}
+.form-row input,.form-row select{width:auto;min-width:0;min-height:38px;padding:7px 12px;text-align:right;max-width:100%}
 .form-row input[type=number]{width:6.5rem}
 input::placeholder{color:var(--label3)}
 input:focus,select:focus{box-shadow:0 0 0 2px var(--tint)}
@@ -205,7 +210,7 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border:0;border-radiu
 .pillars>div:nth-child(5n){border-right:0}
 .pillars>div.lab{color:var(--label2);text-align:left;padding-left:10px;font-size:.75rem}
 .pillars>div.head{font-weight:600}
-.pillars>div.big{font-size:1.75rem;font-weight:700;line-height:1.3}
+.pillars>div.big{font-size:min(1.75rem,8.5vw);font-weight:700;line-height:1.3}
 .pillars>div.day{background:var(--tint-soft)}
 .pillars>div.last{border-bottom:0}
 .el0{color:var(--c-wood)}.el1{color:var(--c-fire)}.el2{color:var(--c-earth)}.el3{color:var(--c-metal)}.el4{color:var(--c-water)}
@@ -214,7 +219,8 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border:0;border-radiu
 .bar i{display:block;height:100%;background:currentColor;border-radius:4px}
 .bal .n{text-align:right;font-variant-numeric:tabular-nums}
 .dtab{display:grid;border:.5px solid var(--sep);border-radius:var(--r-m);overflow:hidden;font-size:.875rem}
-.dtab>div{padding:7px 2px;text-align:center;border-bottom:.5px solid var(--sep);white-space:nowrap;font-size:.8125rem}
+.dtab>div{padding:7px 2px;text-align:center;border-bottom:.5px solid var(--sep);min-width:0;overflow-wrap:anywhere;font-size:.8125rem}
+.dtab>div small{display:block;font-size:.6875rem;font-weight:400;color:var(--label2);line-height:1.3}
 .dtab>div.h{font-weight:600;color:var(--label2);font-size:.75rem;background:var(--fill)}
 .dtab>div.cur{background:var(--tint-soft);font-weight:700}
 
@@ -345,7 +351,7 @@ details .row{padding:8px 0}
       <input type="range" id="textsize" min="85" max="135" step="5" aria-label="文字サイズ">
     </div></div>
     <button type="button" class="secondary wide" id="look-reset">初期値に戻す</button>
-    <p class="footnote" id="app-version">V3: 統一指示書 v5 対応（データ schema v1）</p>
+    <p class="footnote" id="app-version">V4: 統一指示書 v5 対応（データ schema v1・横スクロール対策）</p>
   </section>
 
   <!-- 今日の運勢(既存ロジックの画面) -->
@@ -1810,11 +1816,15 @@ const KAKU = (function(){
       blkD.appendChild(el("p", null, (dn.fwd ? "順行" : "逆行") + "・起運 " + dn.startYears + "歳" + dn.startMonths + "か月"));
       const age = (Date.now() - new Date(b.y, b.m - 1, b.d).getTime()) / (365.2425 * 86400000);
       const tab = el("div", "dtab");
-      tab.style.gridTemplateColumns = "repeat(5,1fr)";
-      ["開始", "干支", "通変星", "十二運", "開始年"].forEach(h => tab.appendChild(el("div", "h", h)));
+      tab.style.gridTemplateColumns = "minmax(0,1.5fr) repeat(3,minmax(0,1fr))";
+      ["開始", "干支", "通変星", "十二運"].forEach(h => tab.appendChild(el("div", "h", h)));
       dn.periods.forEach(pp => {
         const cur = age >= pp.ageFrom && age < pp.ageFrom + 10;
-        [Math.floor(pp.ageFrom) + "歳〜", U.STEMS[pp.s] + U.BRANCHES[pp.b], U.tsuhen(me, pp.s), U.twelve(me, pp.b), Math.floor(b.y + (b.m - 1) / 12 + pp.ageFrom) + "年〜"]
+        /* 狭い画面で右端が切れないよう、開始年齢と開始年を1つのセルに2段で表示する(列の集約) */
+        const c0 = el("div", cur ? "cur" : "", Math.floor(pp.ageFrom) + "歳〜");
+        c0.appendChild(el("small", null, Math.floor(b.y + (b.m - 1) / 12 + pp.ageFrom) + "年〜"));
+        tab.appendChild(c0);
+        [U.STEMS[pp.s] + U.BRANCHES[pp.b], U.tsuhen(me, pp.s), U.twelve(me, pp.b)]
           .forEach(v => tab.appendChild(el("div", cur ? "cur" : "", v)));
       });
       blkD.appendChild(tab);
@@ -1828,7 +1838,7 @@ const KAKU = (function(){
     const blkL = el("div", "block");
     blkL.appendChild(el("h2", null, "流年"));
     const ltab = el("div", "dtab");
-    ltab.style.gridTemplateColumns = "repeat(4,1fr)";
+    ltab.style.gridTemplateColumns = "repeat(4,minmax(0,1fr))";
     ["年", "干支", "通変星", "十二運"].forEach(h => ltab.appendChild(el("div", "h", h)));
     X.liunian(curAdj, 10).forEach((ly, i) => {
       [ly.y + "年", U.STEMS[ly.s] + U.BRANCHES[ly.b], U.tsuhen(me, ly.s), U.twelve(me, ly.b)].forEach(v => ltab.appendChild(el("div", i === 0 ? "cur" : "", v)));

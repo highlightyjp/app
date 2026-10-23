@@ -71,7 +71,7 @@ async function t(name, fn) {
   });
   await t('バージョン表示（§8-2）', async () => {
     const { d } = await boot({});
-    assert.ok(d.getElementById('app-version').textContent.startsWith('V3'));
+    assert.ok(d.getElementById('app-version').textContent.startsWith('V4'));
   });
   const fails = results.filter(r => r[0] === 'FAIL');
   results.forEach(r => console.log(r[0], r[1]));
