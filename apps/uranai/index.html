@@ -95,7 +95,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .msg{color:var(--label2);min-height:1.4em;margin:10px 16px 0;font-size:.875rem;text-align:center}
 
 /* ---- 検索 ---- */
-.search{display:flex;align-items:center;gap:8px;height:42px;padding:0 14px;margin:6px 0 0;background:var(--fill);border-radius:999px;color:var(--label2)}
+.search{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;margin:6px 0 0;background:var(--fill);border-radius:999px;color:var(--label2)}
 .search svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .search input{flex:1;min-width:0;height:100%;background:transparent;border:0;outline:0;color:var(--label);font:inherit;font-size:1.0625rem;padding:0;border-radius:0;min-height:0;-webkit-appearance:none;appearance:none}
 
@@ -123,7 +123,7 @@ input[type=date],input[type=time],input[type=text],input[type=number],select{
   font:inherit;font-size:1.0625rem;color:var(--label);background:var(--fill);border:0;border-radius:var(--r-s);
   padding:10px 14px;min-height:44px;width:100%;-webkit-appearance:none;appearance:none;outline:0;
 }
-.form-row input,.form-row select{width:auto;min-width:0;min-height:38px;padding:7px 12px;text-align:right;max-width:100%}
+.form-row input,.form-row select{width:auto;min-width:0;min-height:44px;padding:7px 12px;text-align:right;max-width:100%}
 .form-row input[type=number]{width:6.5rem}
 input::placeholder{color:var(--label3)}
 input:focus,select:focus{box-shadow:0 0 0 2px var(--tint)}
@@ -142,13 +142,13 @@ button.danger{display:block;width:100%;margin-top:6px;padding:12px;color:var(--r
 
 /* ---- セグメント ---- */
 .seg{display:flex;gap:2px;padding:3px;background:var(--fill);border-radius:999px;margin-bottom:14px}
-.seg button{flex:1;min-height:34px;padding:0 12px;border-radius:999px;font-size:.9375rem;font-weight:500;color:var(--label)}
+.seg button{flex:1;min-height:44px;padding:0 12px;border-radius:999px;font-size:.9375rem;font-weight:500;color:var(--label)}
 .seg button[aria-pressed="true"]{background:var(--card);box-shadow:0 1px 4px rgb(0 0 0 / .18);font-weight:600}
 
 /* ---- スライダー ---- */
 .slider-row{padding:14px 16px 16px}
 .slider-labels{display:flex;justify-content:space-between;font-size:.8125rem;color:var(--label2);margin-bottom:8px}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:32px;background:linear-gradient(to right,var(--tint) var(--p,50%),var(--fill2) var(--p,50%)) center/100% 5px no-repeat;padding:0;min-height:0;border-radius:3px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:44px;background:linear-gradient(to right,var(--tint) var(--p,50%),var(--fill2) var(--p,50%)) center/100% 5px no-repeat;padding:0;min-height:0;border-radius:3px}
 input[type=range]:focus{box-shadow:none}
 input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:3px;background:transparent}
 input[type=range]::-moz-range-track{height:5px;border-radius:3px;background:transparent}
@@ -273,7 +273,7 @@ details .row{padding:8px 0}
 .stroke-row{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 4px}
 .sk{display:flex;flex-direction:column;align-items:center;gap:4px;width:4.6rem;padding:10px 6px 8px;background:var(--fill);border-radius:var(--r-m)}
 .sk .ch{font-size:1.5rem;font-weight:600;line-height:1.1}
-.sk input{width:100%;min-height:38px;padding:6px 4px;text-align:center;background:var(--card)}
+.sk input{width:100%;min-height:44px;padding:6px 4px;text-align:center;background:var(--card)}
 .sk .cap{font-size:.6875rem;color:var(--label2);min-height:1em;text-align:center;line-height:1.2}
 .sk.miss input{box-shadow:0 0 0 2px var(--red)}
 .gk{padding:12px 0;border-bottom:.5px solid var(--sep)}
@@ -351,7 +351,7 @@ details .row{padding:8px 0}
       <input type="range" id="textsize" min="85" max="135" step="5" aria-label="文字サイズ">
     </div></div>
     <button type="button" class="secondary wide" id="look-reset">初期値に戻す</button>
-    <p class="footnote" id="app-version">V4: 統一指示書 v5 対応（データ schema v1・横スクロール対策）</p>
+    <p class="footnote" id="app-version">V5: 統一指示書 v5 対応（データ schema v1・操作性）</p>
   </section>
 
   <!-- 今日の運勢(既存ロジックの画面) -->
@@ -1573,13 +1573,26 @@ const KAKU = (function(){
     section.classList.remove("push", "fade"); void section.offsetWidth; section.classList.add(back ? "push" : "fade");
     window.scrollTo(0, 0); onScroll();
   }
-  function showTab(name){ markTab(name); present(pages[name], TAB_TITLE[name], false); }
-  function goHome(){ showTab("home"); }
+  function showTab(name, keepHist){
+    if (name === "home" && navBack.hidden && !pages.home.hidden){ window.scrollTo({ top: 0, behavior: "smooth" }); return; }  /* ホームを再タップで先頭へ */
+    markTab(name); present(pages[name], TAB_TITLE[name], false);
+    if (!keepHist && history.state && history.state.tool) { try { history.replaceState({ tab: name }, ""); } catch (e) {} }
+  }
+  let homeY = 0;
+  try { history.scrollRestoration = "manual"; } catch (e) {}  /* 戻る時のスクロール位置はアプリ側で復元する */
+  function goHome(){
+    const fromTool = !navBack.hidden;
+    showTab("home", true);
+    if (fromTool){ window.scrollTo(0, homeY); onScroll(); }
+    if (history.state && history.state.tool) { try { history.back(); } catch (e) {} }
+  }
   function goProfile(){ showTab("profile"); }
   function open(id){
     const v = views[id];
+    homeY = window.scrollY || 0;
     markTab("home");
     present(v.section, v.title, true);
+    try { history.pushState({ tool: id }, ""); } catch (e) {}
     if (v.render) v.render(v.body);
   }
   function needBox(body, what, focusId){
@@ -2386,6 +2399,12 @@ const KAKU = (function(){
   /* ----- タブ・戻る・スクロール ----- */
   document.querySelectorAll("#tabbar .tab").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
   navBack.addEventListener("click", goHome);
+  /* ブラウザの戻る・端スワイプ: ツール表示中はホームへ戻す(アプリから離脱させない) */
+  window.addEventListener("popstate", () => {
+    if (!navBack.hidden && !(history.state && history.state.tool)){
+      showTab("home", true); window.scrollTo(0, homeY); onScroll();
+    }
+  });
   window.addEventListener("scroll", onScroll, { passive: true });
   let swipeX = null, swipeY = 0;
   document.addEventListener("touchstart", e => { const t = e.touches[0]; swipeX = t.clientX < 24 ? t.clientX : null; swipeY = t.clientY; }, { passive: true });

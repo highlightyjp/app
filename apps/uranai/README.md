@@ -90,3 +90,18 @@ NODE_PATH=/opt/npm-tools/node_modules node tests/layout.test.js
 ```
 
 未確認: iPhone Safari（WebKit）実機。Chromium のみで検証（`<input type=date>` の固有幅など WebKit 差異は未検証）。
+
+## V5 操作性（2026-10-24）
+
+検出（`tests/ops.test.js`: 4画面サイズ×全画面・全ボタン・全select値・連打・履歴・キーボード・スワイプ・回転・ダーク・文字85/135%）と修正:
+- ブラウザの戻る/Safariの端スワイプでアプリから離脱 → History API 連携（ツール表示で pushState、popstate でホームへ。開閉を繰り返しても履歴は増えない）。
+- 戻るでホーム一覧のスクロール位置が先頭へ戻る → 位置を保存・復元（`history.scrollRestoration="manual"`）。
+- タップ領域が44px未満（入力欄38〜40、検索42、スライダー32、九星の盤切替34、姓名の画数入力38。V4で入力欄を38に下げたのは §5 違反だった） → すべて44px以上。
+- ホーム再タップで先頭へ（iOS標準の慣習）。
+- 計算・定数・保存スキーマは変更なし。版表示は V5。
+
+```
+NODE_PATH=/opt/npm-tools/node_modules node tests/ops.test.js   # 0件で合格
+```
+
+未確認: iPhone Safari（WebKit）実機。Chromium のみで検証。
