@@ -1,0 +1,616 @@
+<title>出身県推定</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Noto+Sans+Mono:wght@400;700&display=swap">
+<style>
+/* 配置：上に日本地図（確率の濃淡）、下に質問カード。iPhone 幅の1列。デジタル庁デザインシステム（DADS v2.18.1）のトークン値に準拠 */
+:root {
+  --font-family-sans: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
+  --font-family-mono: "Noto Sans Mono", ui-monospace, monospace;
+  --bg: #f2f2f2;          /* neutral-solid-gray-50 */
+  --surface: #ffffff;
+  --fg: #1a1a1a;          /* gray-900 */
+  --sub: #595959;
+  --line: #cccccc;
+  --key: #0031d8;         /* key-800 */
+  --key-strong: #0017c1;  /* key-900 */
+  --key-weak: #e8f1fe;
+  --land: #e6e1d6;
+  --land-line: #8a7f6c;
+  --sea: #dfe8f3;
+  --ok: #197a4b; --warn: #927200; --err: #ce0000; --info: #0031d8;
+  --heat-0: #e6e1d6; --heat-1: #b9cdf5; --heat-2: #7896eb; --heat-3: #3a5fe0; --heat-4: #0017c1;
+  --truth: #c74700;
+  --shadow: 0 2px 8px 1px rgba(0,0,0,.10), 0 1px 5px 0 rgba(0,0,0,.30); /* elevation-1 */
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111317; --surface: #1c1f26; --fg: #f0f0f0; --sub: #a9adb5; --line: #3a3f4a;
+  --key: #7096f8; --key-strong: #9db7fb; --key-weak: #1d2b52;
+  --land: #2c3038; --land-line: #59606d; --sea: #161a22;
+  --ok: #51b883; --warn: #d2a400; --err: #ff7171; --info: #7096f8;
+  --heat-0: #2c3038; --heat-1: #24386e; --heat-2: #2f54b8; --heat-3: #4f7bf0; --heat-4: #a5c0ff;
+  --truth: #fb8a3c; --shadow: 0 2px 8px 1px rgba(0,0,0,.5); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111317; --surface: #1c1f26; --fg: #f0f0f0; --sub: #a9adb5; --line: #3a3f4a;
+  --key: #7096f8; --key-strong: #9db7fb; --key-weak: #1d2b52;
+  --land: #2c3038; --land-line: #59606d; --sea: #161a22;
+  --ok: #51b883; --warn: #d2a400; --err: #ff7171; --info: #7096f8;
+  --heat-0: #2c3038; --heat-1: #24386e; --heat-2: #2f54b8; --heat-3: #4f7bf0; --heat-4: #a5c0ff;
+  --truth: #fb8a3c; --shadow: 0 2px 8px 1px rgba(0,0,0,.5); color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-family-sans); font-size: 16px; line-height: 1.7; letter-spacing: .02em;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 12px 40px }
+.wrap { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px }
+h1, h2, h3 { text-wrap: balance; line-height: 1.4; margin: 0 }
+h1 { font-size: 28px; font-weight: 900; letter-spacing: .04em }
+h2 { font-size: 20px; font-weight: 700 }
+h3 { font-size: 16px; font-weight: 700 }
+p { margin: 0 }
+.num, .mono { font-family: var(--font-family-mono); font-variant-numeric: tabular-nums }
+.sub { color: var(--sub); font-size: 14px }
+.small { font-size: 13px; color: var(--sub); line-height: 1.6 }
+a { color: var(--key) }
+button { font: inherit; letter-spacing: inherit; color: inherit }
+:focus-visible { outline: 4px solid #000; outline-offset: 2px; border-radius: 4px; box-shadow: 0 0 0 2px #ffd43d }
+.btn { min-height: 48px; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--key); background: var(--surface); color: var(--key); font-weight: 700; cursor: pointer; text-align: center }
+.btn.primary { background: var(--key); color: var(--surface); border-color: var(--key) }
+.btn.quiet { border-color: var(--line); color: var(--fg); font-weight: 400 }
+.btn:disabled { opacity: .45; cursor: default }
+.row { display: flex; gap: 8px; flex-wrap: wrap }
+.row > .btn { flex: 1 1 140px }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap }
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor }
+.badge.ok { color: var(--ok) } .badge.warn { color: var(--warn) } .badge.err { color: var(--err) } .badge.info { color: var(--info) }
+.panel { background: var(--surface); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px }
+.raised { box-shadow: var(--shadow) }
+/* 地図 */
+.mapbox { position: relative; background: var(--sea); border-radius: 12px; overflow: hidden }
+.mapbox svg { display: block; width: 100%; height: auto; max-height: 46vh; margin: 0 auto }
+body.compact header .sub, body.compact #legend { display: none }
+body.compact header h1 { font-size: 20px }
+body.compact .mapbox svg { max-height: 30vh; width: auto; max-width: 100% }
+.mapbox path { fill: var(--heat-0); stroke: var(--land-line); stroke-width: .5; transition: fill .35s }
+.mapbox path.h1 { fill: var(--heat-1) } .mapbox path.h2 { fill: var(--heat-2) } .mapbox path.h3 { fill: var(--heat-3) } .mapbox path.h4 { fill: var(--heat-4) }
+.mapbox path.sel { stroke: var(--truth); stroke-width: 2.4 }
+.mapbox path.tap { cursor: pointer }
+.mapbox .inset { fill: none; stroke: var(--land-line); stroke-dasharray: 4 3 }
+.legend { display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--sub) }
+.legend i { width: 18px; height: 10px; border-radius: 2px; display: inline-block }
+/* 質問 */
+.qmeta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--sub) }
+.qtext { font-size: 20px; font-weight: 700; line-height: 1.6 }
+.hint { font-size: 14px; color: var(--sub); border-left: 3px solid var(--line); padding-left: 10px }
+.opts { display: grid; gap: 8px }
+.opts .btn { width: 100%; text-align: left; font-size: 17px }
+.toggles { display: flex; gap: 8px; flex-wrap: wrap }
+.chk { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-size: 15px }
+.chk input { width: 20px; height: 20px; accent-color: var(--key) }
+.prog { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden }
+.prog i { display: block; height: 100%; background: var(--key); width: 0; transition: width .3s }
+/* 候補 */
+.cands { display: grid; gap: 4px }
+.cand { display: grid; grid-template-columns: 2.6em 5.2em 1fr 3.6em; gap: 8px; align-items: center; font-size: 14px }
+.cand .code { color: var(--sub); font-family: var(--font-family-mono); font-size: 12px }
+.cand .track { height: 10px; background: var(--key-weak); border-radius: 2px; overflow: hidden }
+.cand .track i { display: block; height: 100%; background: var(--key) }
+.cand .pct { text-align: right }
+.regions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px }
+.reg { font-size: 12px; display: flex; flex-direction: column; gap: 2px }
+.reg .track { height: 6px; background: var(--key-weak); border-radius: 2px; overflow: hidden }
+.reg .track i { display: block; height: 100%; background: var(--key-strong) }
+.moves { font-size: 13px; color: var(--sub); min-height: 1.6em }
+.up { color: var(--ok); font-weight: 700 } .down { color: var(--err) }
+/* 結果 */
+.guess { font-size: 40px; font-weight: 900; letter-spacing: .06em; line-height: 1.2 }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; font-size: 14px }
+.kv dt { color: var(--sub) } .kv dd { margin: 0; min-width: 0 }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px }
+.tbl th, .tbl td { padding: 6px 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top }
+.tbl td.r, .tbl th.r { text-align: right; font-family: var(--font-family-mono); font-variant-numeric: tabular-nums; white-space: nowrap }
+.scroll { overflow-x: auto }
+.grid47 { display: grid; gap: 10px }
+.grid47 .rg { display: flex; flex-direction: column; gap: 4px }
+.grid47 .rg b { font-size: 13px; color: var(--sub) }
+.grid47 .rg div { display: flex; flex-wrap: wrap; gap: 6px }
+.grid47 button { min-height: 44px; min-width: 64px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 15px }
+.grid47 button:hover { border-color: var(--key) }
+.err-list { font-size: 13px; color: var(--err) }
+details summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 700 }
+select, input[type=search] { font: inherit; min-height: 44px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); width: 100% }
+.foot { font-size: 12px; color: var(--sub); line-height: 1.7 }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
+</style>
+
+<div class="wrap" id="app">
+  <header class="bar">
+    <div>
+      <h1>出身県推定</h1>
+      <p class="sub">質問に答えると、子どもの頃に住んでいた都道府県を統計から推定します</p>
+    </div>
+    <span class="badge info" id="ver">V1</span>
+  </header>
+
+  <div class="mapbox" id="mapbox" aria-label="日本地図。色が濃いほど可能性が高い都道府県"></div>
+  <div class="legend" id="legend" aria-hidden="true">
+    <span>低い</span><i style="background:var(--heat-0)"></i><i style="background:var(--heat-1)"></i><i style="background:var(--heat-2)"></i><i style="background:var(--heat-3)"></i><i style="background:var(--heat-4)"></i><span>高い</span>
+    <span id="legendNote"></span>
+  </div>
+
+  <!-- タイトル -->
+  <section id="v-title" class="panel raised">
+    <h2>15歳までにいちばん長く住んだ都道府県を当てます</h2>
+    <p>食卓・暮らし・学校・気候・郷土料理についての質問に答えてください。答えるたびに地図の色が変わり、候補が絞られていきます。</p>
+    <dl class="kv">
+      <dt>質問の数</dt><dd><span class="num" id="tQn"></span>問（うち一次統計から作った問題 <span class="num" id="tQm"></span>問）</dd>
+      <dt>みんなの回答</dt><dd id="tCrowd">確認中…</dd>
+    </dl>
+    <div class="row">
+      <button class="btn primary" id="startBtn" type="button">はじめる</button>
+    </div>
+    <div class="row">
+      <button class="btn quiet" id="exploreBtn" type="button">データ地図を見る</button>
+      <button class="btn quiet" id="aboutBtn" type="button">しくみと出典</button>
+    </div>
+  </section>
+
+  <!-- 質問 -->
+  <section id="v-quiz" class="panel raised" hidden>
+    <div class="prog" aria-hidden="true"><i id="progBar"></i></div>
+    <div class="qmeta"><span id="qNum" class="num"></span><span id="qCat" class="badge info"></span><span id="qBasis"></span></div>
+    <p class="qtext" id="qText"></p>
+    <p class="hint" id="qHint" hidden></p>
+    <div class="opts" id="qOpts"></div>
+    <div class="toggles">
+      <label class="chk" for="maybe"><input type="checkbox" id="maybe">自信がない（弱めに使う）</label>
+      <button class="btn quiet" id="skipBtn" type="button">わからない・どちらでもない</button>
+    </div>
+    <p class="moves" id="moves" aria-live="polite"></p>
+    <div class="row">
+      <button class="btn quiet" id="guessNow" type="button" disabled>もう当てて</button>
+      <button class="btn quiet" id="quitBtn" type="button">やめる</button>
+    </div>
+  </section>
+
+  <section id="v-cands" class="panel" hidden>
+    <div class="bar"><h3>いまの候補</h3><span class="small" id="eastWest"></span></div>
+    <div class="cands" id="cands"></div>
+    <div class="regions" id="regions"></div>
+  </section>
+
+  <!-- 結果 -->
+  <section id="v-result" class="panel raised" hidden>
+    <p class="sub" id="rLead">あなたの出身は…</p>
+    <p class="guess" id="rGuess"></p>
+    <p id="rConf" class="sub"></p>
+    <div class="row" id="rAsk">
+      <button class="btn primary" id="yesBtn" type="button">合っている</button>
+      <button class="btn" id="noBtn" type="button">ちがう</button>
+    </div>
+    <div id="rPick" hidden>
+      <p><b>15歳までにいちばん長く住んだ都道府県</b>を選んでください。答えはだれのものか分からない形で集計し、次の人の判定に使います。</p>
+      <div class="grid47" id="grid47"></div>
+      <div class="row"><button class="btn quiet" id="abroadBtn" type="button">日本以外</button></div>
+    </div>
+    <div id="rDone" hidden>
+      <p id="rVerdict"></p>
+      <p class="small" id="rSend"></p>
+    </div>
+  </section>
+
+  <section id="v-detail" class="panel" hidden>
+    <h3>推定の内訳</h3>
+    <dl class="kv" id="rKv"></dl>
+    <h3>上位10県</h3>
+    <div class="cands" id="rTop"></div>
+    <h3>どの答えが決め手になったか</h3>
+    <p class="small" id="rExpHead"></p>
+    <div class="scroll"><table class="tbl" id="rExp"><thead><tr><th>質問</th><th>答え</th><th class="r">効き目</th></tr></thead><tbody></tbody></table></div>
+    <div class="row"><button class="btn primary" id="againBtn" type="button">もう一度</button><button class="btn quiet" id="homeBtn" type="button">タイトルへ</button></div>
+  </section>
+
+  <!-- データ地図 -->
+  <section id="v-explore" class="panel raised" hidden>
+    <h2>データ地図</h2>
+    <p class="small">各質問について、都道府県ごとの「最初の選択肢を選ぶ人の割合（推定）」と、元にした統計の値を見られます。地図をタップするとその県の値を表示します。</p>
+    <label for="exCat" class="small">分類</label>
+    <select id="exCat"></select>
+    <label for="exQ" class="small">質問</label>
+    <select id="exQ"></select>
+    <div id="exInfo" class="small"></div>
+    <div class="scroll"><table class="tbl" id="exTbl"><thead><tr><th>コード</th><th>都道府県</th><th class="r" id="exColP">回答率</th><th class="r" id="exColV">統計値</th></tr></thead><tbody></tbody></table></div>
+    <div class="row"><button class="btn quiet" id="exBack" type="button">タイトルへ</button></div>
+  </section>
+
+  <!-- しくみと出典 -->
+  <section id="v-about" class="panel raised" hidden>
+    <h2>しくみと出典</h2>
+    <h3>推定のしかた</h3>
+    <p>質問ごとに「その都道府県で育った人が、それぞれの選択肢を選ぶ確率」を用意し、答えを掛け合わせて都道府県ごとの確率を計算します（ナイーブベイズ）。次の質問は、いまの候補をいちばん絞り込める（情報量が最大の）ものから選びます。候補が郷土料理で絞れる段階では、候補県の料理を4品まとめて見せる質問を使います。</p>
+    <p>確率の元は次のとおりです。区分ごとに作り方が違い、仮定を含みます。</p>
+    <div class="scroll"><table class="tbl" id="basisTbl"><thead><tr><th>区分</th><th class="r">問題数</th><th>元データと作り方</th></tr></thead><tbody></tbody></table></div>
+    <h3>みんなの回答で直す</h3>
+    <p>結果を答えてくれた人の回答を、都道府県×質問×選択肢ごとに数え、統計から作った値（質問ごとに15〜200人分として数える）と混ぜます。回答が増えるほど実際の答えに近づきます。</p>
+    <p class="small" id="crowdNote"></p>
+    <h3>注意</h3>
+    <ul class="small">
+      <li>家計調査は都道府県庁所在市の世帯の値です。県内の地域差は反映していません。</li>
+      <li>気候は各都道府県の1地点の平年値です。</li>
+      <li>統計の値から回答率への変換には仮定があります（各質問の「作り方」に記載）。</li>
+      <li>娯楽目的の推定です。結果を個人の評価や判断に使わないでください。</li>
+    </ul>
+    <h3>出典</h3>
+    <ul class="small" id="srcList"></ul>
+    <div class="row"><button class="btn quiet" id="aboutBack" type="button">タイトルへ</button></div>
+  </section>
+
+  <section id="v-status" class="panel" hidden>
+    <div class="bar"><h3>状態</h3><span id="netBadge" class="badge warn">確認中</span></div>
+    <p class="small" id="netText"></p>
+    <div class="err-list" id="errList"></div>
+  </section>
+
+  <footer class="foot" id="foot"></footer>
+</div>
+
+<script type="application/json" id="d-meta">__META__</script>
+<script type="application/json" id="d-map">__MAP__</script>
+<script type="application/json" id="d-qs">__QS__</script>
+<script>
+/*__ENGINE__*/
+</script>
+<script>
+(function () {
+  'use strict';
+  const APP_VER = 'V1';
+  const SCHEMA = 1;
+  const $ = id => document.getElementById(id);
+  const J = id => JSON.parse($(id).textContent);
+  const META = J('d-meta'), MAP = J('d-map'), QS = J('d-qs');
+  const N = 47;
+  const ERR = [];   // {scope, ref, msg}
+  function err(scope, ref, msg) { ERR.push({ scope, ref, msg: String(msg && msg.message || msg) }); renderStatus(); }
+  const ls = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 端末の保存ができない環境でも続行 */ } },
+  };
+  function el(tag, attrs, ...kids) {
+    const e = document.createElement(tag);
+    if (attrs) for (const k in attrs) { if (k === 'class') e.className = attrs[k]; else if (k === 'text') e.textContent = attrs[k]; else if (k.startsWith('on')) e.addEventListener(k.slice(2), attrs[k]); else e.setAttribute(k, attrs[k]); }
+    for (const c of kids) if (c != null) e.append(c.nodeType ? c : document.createTextNode(String(c)));
+    return e;
+  }
+  const pct = (p, d) => (p * 100).toFixed(d == null ? (p < 0.1 ? 1 : 0) : d) + '%';
+  const code = k => String(k + 1).padStart(2, '0');
+  const jst = () => { const d = new Date(Date.now() + 9 * 3600e3); return d.toISOString().slice(0, 16) + '+09:00'; };
+
+  let E = ShusshinEngine.create(QS, META, null);
+  const BASIS = {
+    K: '総務省「家計調査」都道府県庁所在市別の購入量・支出（2023〜2025年平均と2008年）を全国比で回答率に変換',
+    KM: '家計調査の品目どうしの量の比から、どれがいちばん多いかの回答率を作成',
+    S: '総務省「統計でみる都道府県のすがた2026」の割合をそのまま、または全国差で回答率に変換',
+    W: '気象庁の平年値（1991〜2020年）から回答率に変換',
+    G: '文部科学省「学校給食実施状況等調査」の中学校完全給食実施率',
+    F: '地理的事実（海に面しない8県）',
+    E: '農林水産省「うちの郷土料理」の都道府県別掲載。回答率は仮定（掲載県45%・同じ地方7%・ほか3.5%）',
+  };
+  const BASIS_SHORT = { K: '家計調査', KM: '家計調査', S: '都道府県統計', W: '気象庁', G: '文科省', F: '地理', E: '郷土料理' };
+
+  // ---------- 地図 ----------
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(SVGNS, 'svg');
+  svg.setAttribute('viewBox', MAP.viewBox.join(' ')); svg.setAttribute('role', 'img');
+  const paths = MAP.paths.map((d, k) => { const p = document.createElementNS(SVGNS, 'path'); p.setAttribute('d', d); const t = document.createElementNS(SVGNS, 'title'); t.textContent = META.prefs[k]; p.append(t); p.dataset.k = k; svg.append(p); return p; });
+  const ib = MAP.insetBox; const r = document.createElementNS(SVGNS, 'rect');
+  r.setAttribute('class', 'inset'); r.setAttribute('x', ib[0]); r.setAttribute('y', ib[1]); r.setAttribute('width', ib[2]); r.setAttribute('height', ib[3]); r.setAttribute('rx', 6); svg.append(r);
+  $('mapbox').append(svg);
+  function paint(vals, mode, sel) {
+    // mode 'post': 事後確率（最大値で正規化）, 'rate': 0〜1 の回答率
+    const mx = Math.max(...vals, 1e-9);
+    paths.forEach((p, k) => {
+      const v = mode === 'post' ? vals[k] / mx : vals[k];
+      const lv = mode === 'post' ? (v > 0.66 ? 4 : v > 0.33 ? 3 : v > 0.12 ? 2 : v > 0.03 ? 1 : 0) : Math.min(4, Math.floor(v * 5));
+      p.setAttribute('class', (lv ? 'h' + lv : '') + (sel === k ? ' sel' : '') + (mapTap ? ' tap' : ''));
+    });
+  }
+  let mapTap = null;
+  svg.addEventListener('click', e => { const p = e.target.closest('path'); if (p && mapTap) mapTap(+p.dataset.k); });
+
+  // ---------- 表示切替 ----------
+  const VIEWS = ['v-title', 'v-quiz', 'v-cands', 'v-result', 'v-detail', 'v-explore', 'v-about'];
+  function show(...ids) { VIEWS.forEach(v => $(v).hidden = !ids.includes(v)); document.body.classList.toggle('compact', ids.includes('v-quiz') || ids.includes('v-result')); window.scrollTo({ top: 0 }); }
+
+  // ---------- みんなの回答（db） ----------
+  const NET = { db: null, user: null, uid: null, state: 'off', plays: 0, hit1: 0, hit2: 0, bad: 0, loadedAt: null, canWrite: null };
+  function renderStatus() {
+    const st = NET.state;
+    $('v-status').hidden = false;
+    const b = $('netBadge');
+    b.className = 'badge ' + (st === 'ok' ? 'ok' : st === 'off' ? 'warn' : st === 'loading' ? 'info' : 'err');
+    b.textContent = st === 'ok' ? 'みんなの回答を使用中' : st === 'off' ? '統計だけで判定' : st === 'loading' ? '読み込み中' : '一部失敗';
+    $('netText').textContent = st === 'ok'
+      ? `みんなの回答 ${NET.plays}件を判定に反映しています（読み込み ${NET.loadedAt}）。` + (NET.bad ? `形式が不正な ${NET.bad}件は使っていません。` : '')
+      : st === 'off' ? 'この環境ではみんなの回答の共有を使えないため、統計から作った値だけで判定します。答えの送信もしません。'
+      : st === 'loading' ? 'みんなの回答を読み込んでいます。読み込み中も遊べます。' : 'みんなの回答の読み込みに失敗しました。統計から作った値で判定を続けます。';
+    const list = $('errList'); list.textContent = '';
+    ERR.slice(-5).forEach(x => list.append(el('div', { text: `[${x.scope}] ${x.ref}: ${x.msg}` })));
+    const t = $('tCrowd');
+    t.textContent = st === 'ok' ? (NET.plays ? `${NET.plays}件（1回目で的中 ${pct(NET.hit1 / NET.plays)}、2回以内 ${pct(NET.hit2 / NET.plays)}）` : 'まだありません（統計から作った値で判定）')
+      : st === 'off' ? 'この環境では使えません（統計だけで判定）' : st === 'loading' ? '読み込み中…' : '読み込みに失敗（統計だけで判定）';
+    $('crowdNote').textContent = $('tCrowd').textContent;
+  }
+  // NORM：共有データは信用せず、形と範囲を検査してから使う
+  const QID = new Map(QS.map((q, i) => [q.id, i]));
+  function normPlay(d) {
+    if (!d || d.v !== SCHEMA) return null;
+    const truth = Number.isInteger(d.truth) && d.truth >= -1 && d.truth < N ? d.truth : null;
+    if (truth === null || !Array.isArray(d.a) || d.a.length > 60) return null;
+    const a = [];
+    for (const x of d.a) {
+      if (!Array.isArray(x) || x.length < 2) return null;
+      const id = String(x[0]), j = x[1], w = x[2] === 0.5 ? 0.5 : 1;
+      if (!Number.isInteger(j) || j < 0) return null;
+      if (id.startsWith('c:')) {
+        const ids = id.slice(2).split('+'); if (ids.length < 2 || ids.length > 6 || ids.some(i => !QID.has(i))) return null;
+        if (j > ids.length) return null; a.push({ comp: ids, j, w });
+      } else { if (!QID.has(id) || j >= QS[QID.get(id)].o.length) return null; a.push({ id, j, w }); }
+    }
+    const g1 = Number.isInteger(d.g1) && d.g1 >= 0 && d.g1 < N ? d.g1 : null;
+    const g2 = Number.isInteger(d.g2) && d.g2 >= 0 && d.g2 < N ? d.g2 : null;
+    return { truth, a, g1, g2 };
+  }
+  function crowdFrom(plays) {
+    const q = {}, n = new Array(N).fill(0);
+    const bump = (id, k, j, w) => { const qq = QS[QID.get(id)], m = qq.o.length; (q[id] = q[id] || new Array(N * m).fill(0))[k * m + j] += w; };
+    for (const p of plays) {
+      if (p.truth < 0) continue; const k = p.truth; n[k]++;
+      for (const x of p.a) {
+        if (x.comp) { if (x.j < x.comp.length) bump(x.comp[x.j], k, 0, x.w); else x.comp.forEach(id => bump(id, k, 1, x.w)); }
+        else bump(x.id, k, x.j, x.w);
+      }
+    }
+    return { q, n };
+  }
+  async function loadCrowd() {
+    const w = window.claude;
+    if (!w || typeof w.use !== 'function') { NET.state = 'off'; renderStatus(); return; }
+    NET.state = 'loading'; renderStatus();
+    try {
+      const [db, user] = await Promise.all([w.use('db'), w.use('user')]);
+      if (!db) { NET.state = 'off'; renderStatus(); return; }
+      NET.db = db; NET.user = user;
+      try { NET.uid = user ? await user.id() : null; } catch (e) { NET.uid = null; }
+      try { NET.canWrite = user && typeof user.can === 'function' ? await user.can('data.write') : null; } catch (e) { NET.canWrite = null; }
+      let docs = [];
+      const first = await db.collection('pool').limit(1000).get();
+      if (first.size >= 1000) {   // 1000件を超えたら出身県ごとに分けて読む
+        for (let k = -1; k < N; k++) { const s = await db.collection('pool').where('truth', '==', k).limit(1000).get(); docs = docs.concat(s.docs); }
+      } else docs = first.docs;
+      const plays = []; let bad = 0, h1 = 0, h2 = 0;
+      for (const d of docs) { const p = normPlay(d.data()); if (!p) { bad++; continue; } plays.push(p); if (p.truth >= 0 && p.g1 === p.truth) h1++; if (p.truth >= 0 && (p.g1 === p.truth || p.g2 === p.truth)) h2++; }
+      const valid = plays.filter(p => p.truth >= 0).length;
+      NET.plays = valid; NET.hit1 = h1; NET.hit2 = h2; NET.bad = bad; NET.loadedAt = jst().slice(11, 16);
+      E.rebuild(crowdFrom(plays));
+      NET.state = 'ok';
+    } catch (e) { NET.state = 'fail'; err('db', 'pool', e && e.code ? e.code : e); }
+    renderStatus();
+  }
+  async function alreadySent() {
+    if (!NET.db || !NET.uid) return false;
+    try { const s = await NET.db.doc('data/users/' + NET.uid + '/shusshin').get(); return !!(s.exists && s.data() && s.data().sent); } catch (e) { return false; }
+  }
+  async function submitPlay(rec) {
+    if (NET.state !== 'ok' || !NET.db) return 'off';
+    if (rec.truth < 0) return 'abroad';
+    if (NET.canWrite === false) return 'readonly';
+    if (await alreadySent()) return 'again';
+    try {
+      await NET.db.collection('pool').doc().set(rec);
+      if (NET.uid) { try { await NET.db.doc('data/users/' + NET.uid + '/shusshin').set({ v: SCHEMA, sent: true, at: jst() }); } catch (e) { err('db', 'sent-mark', e && e.code || e); } }
+      return 'sent';
+    } catch (e) {
+      if (e && e.code === 'invalid_argument') return 'readonly';
+      if (e && e.code === 'quota_exceeded') { err('db', 'pool', '保存できる件数の上限に達しました'); return 'full'; }
+      err('db', 'pool', e && e.code || e); return 'fail';
+    }
+  }
+
+  // ---------- ゲーム ----------
+  let G = null;
+  function start() {
+    G = { st: E.newState(), cur: null, prevPost: null, phase: 'quiz', guesses: [], truth: null };
+    mapTap = null; show('v-quiz', 'v-cands'); next();
+  }
+  function curQ() { return G.cur && G.cur.comp ? null : QS[G.cur]; }
+  function next() {
+    const st = G.st;
+    if (E.shouldStop(st)) return finish();
+    const qi = E.pickNext(st);
+    if (qi === -1) return finish();
+    G.cur = qi; renderQ();
+  }
+  function renderQ() {
+    const st = G.st, n = st.ans.length, comp = G.cur && G.cur.comp;
+    $('progBar').style.width = Math.min(100, n / E.C.MAX_Q * 100) + '%';
+    $('qNum').textContent = `Q${n + 1}`;
+    const opts = $('qOpts'); opts.textContent = '';
+    if (comp) {
+      $('qCat').textContent = '郷土料理'; $('qBasis').textContent = '農林水産省「うちの郷土料理」';
+      $('qText').textContent = '次のうち、子どもの頃に身近だった料理は？（いちばん身近なものを1つ）';
+      $('qHint').hidden = false; $('qHint').textContent = '家・給食・地域の行事などで食べていたもの。どれも知らなければ「どれも身近ではない」を選んでください。';
+      comp.forEach((qi, j) => {
+        const q = QS[qi];
+        opts.append(el('button', { class: 'btn', type: 'button', onclick: () => choose(j) }, el('span', { text: q.t }), q.hint ? el('span', { class: 'small', text: '　' + q.hint.replace(/^「[^」]*」(は|とは)、?/, '').slice(0, 28) + '…' }) : null));
+      });
+      opts.append(el('button', { class: 'btn quiet', type: 'button', onclick: () => choose(comp.length), text: 'どれも身近ではない' }));
+    } else {
+      const q = QS[G.cur];
+      $('qCat').textContent = q.cat; $('qBasis').textContent = BASIS_SHORT[q.basis];
+      $('qText').textContent = q.q;
+      $('qHint').hidden = !q.hint; $('qHint').textContent = q.hint || '';
+      q.o.forEach((o, j) => opts.append(el('button', { class: 'btn', type: 'button', onclick: () => choose(j), text: o })));
+    }
+    $('maybe').checked = false;
+    $('guessNow').disabled = n < E.C.MIN_Q;
+    renderCands();
+  }
+  function choose(j) {
+    const prev = G.st.post.slice();
+    E.answer(G.st, G.cur, j, $('maybe').checked);
+    const mv = E.movers(prev, G.st.post, 3), m = $('moves'); m.textContent = '';
+    if (mv.up.length) { m.append('上がった：'); mv.up.forEach(x => m.append(el('span', { class: 'up', text: `${META.short[x[1]]}+${(x[0] * 100).toFixed(1)} ` }))); }
+    if (mv.down.length) { m.append(' 下がった：'); mv.down.forEach(x => m.append(el('span', { class: 'down', text: `${META.short[x[1]]}${(x[0] * 100).toFixed(1)} ` }))); }
+    next();
+  }
+  function skip() { E.skip(G.st, G.cur); $('moves').textContent = 'この質問は判定に使いません。'; next(); }
+  function renderCands() {
+    const post = G.st.post; paint(post, 'post');
+    const c = $('cands'); c.textContent = '';
+    E.top(post, 5).forEach(([p, k]) => c.append(el('div', { class: 'cand' }, el('span', { class: 'code', text: code(k) }), el('span', { text: META.short[k] }), el('span', { class: 'track' }, el('i', { style: `width:${(p * 100).toFixed(1)}%` })), el('span', { class: 'pct num', text: pct(p) }))));
+    const rg = $('regions'); rg.textContent = '';
+    E.regionShare(post).forEach((p, i) => rg.append(el('div', { class: 'reg' }, el('span', { text: `${META.regions[i]} ${pct(p, 0)}` }), el('span', { class: 'track' }, el('i', { style: `width:${(p * 100).toFixed(1)}%` })))));
+    $('eastWest').textContent = `東日本 ${pct(E.eastShare(post), 0)}／西日本 ${pct(1 - E.eastShare(post), 0)}`;
+  }
+  function finish() {
+    const order = E.top(G.st.post, 47).map(x => x[1]);
+    G.order = order; G.try = 0; G.guesses = [order[0]];
+    G.phase = 'result'; show('v-result', 'v-cands');
+    showGuess();
+  }
+  function showGuess() {
+    const k = G.guesses[G.try], p = G.st.post[k];
+    $('rLead').textContent = G.try === 0 ? 'あなたの出身は…' : 'では、2番目の候補は…';
+    $('rGuess').textContent = META.prefs[k];
+    const e = E.eastShare(G.st.post);
+    $('rConf').textContent = `確率 ${pct(p, 1)}（質問 ${G.st.ans.length}問）` + (G.try === 0 && e >= E.C.SEKI_LO && e <= E.C.SEKI_HI ? '。東日本か西日本か決めきれない回答でした' : '');
+    paint(G.st.post, 'post', k);
+    $('rAsk').hidden = false; $('rPick').hidden = true; $('rDone').hidden = true;
+  }
+  function yes() { G.truth = G.guesses[G.try]; done(); }
+  function no() {
+    if (G.try === 0) { G.try = 1; G.guesses.push(G.order[1]); showGuess(); return; }
+    $('rAsk').hidden = true; $('rPick').hidden = false;
+    mapTap = k => pickTruth(k); paint(G.st.post, 'post');
+  }
+  function pickTruth(k) { mapTap = null; G.truth = k; done(); }
+  async function done() {
+    $('rAsk').hidden = true; $('rPick').hidden = true; $('rDone').hidden = false;
+    const t = G.truth, hit1 = t === G.guesses[0], hit2 = hit1 || t === G.guesses[1];
+    $('rVerdict').textContent = t < 0 ? '日本以外で育った方の答えは、判定には使いません。'
+      : hit1 ? `1回目で的中しました（${META.prefs[t]}）。` : hit2 ? `2回目で的中しました（${META.prefs[t]}）。` : `${META.prefs[t]}は候補の${G.order.indexOf(t) + 1}位でした。`;
+    paint(G.st.post, 'post', t >= 0 ? t : undefined);
+    renderDetail();
+    const rec = { v: SCHEMA, ver: APP_VER, at: jst(), truth: t, g1: G.guesses[0], g2: G.guesses[1] == null ? null : G.guesses[1], hit1, hit2,
+      nq: G.st.ans.length, conf: Math.round(Math.max(...G.st.post) * 1000) / 1000,
+      a: G.st.ans.map(x => [x.comp ? 'c:' + x.comp.map(i => QS[i].id).join('+') : QS[x.qi].id, x.j, x.w === 1 ? 1 : 0.5]) };
+    $('rSend').textContent = '送信中…';
+    const r = await submitPlay(rec);
+    $('rSend').textContent = { sent: 'あなたの答えを、だれのものか分からない形で保存しました。次の人の判定に使われます。', again: '判定に使う答えは1人1回目だけです（今回は保存していません）。', off: 'この環境では答えを共有できないため、保存していません。', abroad: '日本以外の答えは保存していません。', readonly: 'このページを閲覧のみで開いているため、答えは保存していません。', full: '保存できる件数の上限に達したため、保存していません。', fail: '通信に失敗したため、保存していません。' }[r] || '';
+    if (r === 'sent') { NET.plays++; if (hit1) NET.hit1++; if (hit2) NET.hit2++; renderStatus(); }
+  }
+  function ansLabel(x) {
+    if (x.comp) return x.j < x.comp.length ? QS[x.comp[x.j]].t + 'が身近' : 'どれも身近ではない';
+    return QS[x.qi].o[x.j];
+  }
+  function renderDetail() {
+    $('v-detail').hidden = false;
+    const post = G.st.post, a = G.order[0], b = G.order[1];
+    const kv = $('rKv'); kv.textContent = '';
+    const odds = E.oddsOf(G.st.ans);
+    const add = (k, v) => kv.append(el('dt', { text: k }), el('dd', { text: v }));
+    add('いちばん可能性が高い', `${META.prefs[a]}（${pct(post[a], 1)}）`);
+    add('2番目', `${META.prefs[b]}（${pct(post[b], 1)}）`);
+    add('答えた質問', `${G.st.ans.length}問（わからない ${G.st.skipped.length}問）`);
+    add('東日本の確率', pct(E.eastShare(post), 0));
+    add('この答えの組み合わせ', odds >= 10000 ? `約${Math.round(odds / 1000) / 10}万人に1人` : `約${Math.max(2, Math.round(odds))}人に1人`);
+    const top = $('rTop'); top.textContent = '';
+    E.top(post, 10).forEach(([p, k]) => top.append(el('div', { class: 'cand' }, el('span', { class: 'code', text: code(k) }), el('span', { text: META.short[k] }), el('span', { class: 'track' }, el('i', { style: `width:${(p * 100).toFixed(1)}%` })), el('span', { class: 'pct num', text: pct(p) }))));
+    $('rExpHead').textContent = `「効き目」は、その答えが${META.short[a]}と${META.short[b]}のどちらをどれだけ支持したか（${META.short[a]}寄りが＋、何倍の差かを表示）。`;
+    const tb = $('rExp').tBodies[0]; tb.textContent = '';
+    E.explain(G.st.ans, a, b).map((x, i) => [x, i]).sort((p, q) => Math.abs(q[0].llr) - Math.abs(p[0].llr)).forEach(([x]) => {
+      const ratio = Math.exp(x.llr), txt = x.llr >= 0 ? `×${ratio.toFixed(ratio < 10 ? 2 : 0)}` : `÷${(1 / ratio).toFixed(1 / ratio < 10 ? 2 : 0)}`;
+      const qt = x.comp ? '郷土料理（' + x.comp.map(i => QS[i].t).join('・') + '）' : QS[x.qi].q;
+      tb.append(el('tr', null, el('td', { text: qt }), el('td', { text: ansLabel(x) }), el('td', { class: 'r ' + (x.llr >= 0 ? 'up' : 'down'), text: txt })));
+    });
+  }
+
+  // ---------- 都道府県の選択 ----------
+  (function buildGrid() {
+    const g = $('grid47');
+    META.regions.forEach((rn, ri) => {
+      const box = el('div', null);
+      META.prefs.forEach((p, k) => { if (META.region[k] === ri) box.append(el('button', { type: 'button', onclick: () => pickTruth(k), text: META.short[k] })); });
+      g.append(el('div', { class: 'rg' }, el('b', { text: rn }), box));
+    });
+  })();
+
+  // ---------- データ地図 ----------
+  const CATS = [...new Set(QS.map(q => q.cat))];
+  function exploreInit() {
+    const s = $('exCat'); s.textContent = '';
+    CATS.forEach(c => s.append(el('option', { value: c, text: `${c}（${QS.filter(q => q.cat === c).length}問）` })));
+    s.value = ls.get('shusshin.ui.v1', {}).cat || CATS[0];
+    exFill();
+  }
+  function exFill() {
+    const c = $('exCat').value, s = $('exQ'); s.textContent = '';
+    QS.forEach((q, i) => { if (q.cat === c) s.append(el('option', { value: i, text: q.t })); });
+    ls.set('shusshin.ui.v1', { cat: c });
+    exShow();
+  }
+  let exSel = -1;
+  function exShow() {
+    const qi = +$('exQ').value, q = QS[qi]; if (!q) return;
+    const n = q.o.length, M = E.M[qi];
+    const rate = Array.from({ length: N }, (_, k) => M[k * n]);
+    paint(rate, 'rate', exSel >= 0 ? exSel : undefined);
+    $('legendNote').textContent = `「${q.o[0]}」の割合`;
+    const info = $('exInfo'); info.textContent = '';
+    info.append(el('p', null, el('b', { text: q.q })), el('p', { text: '選択肢：' + q.o.join('／') }), el('p', { text: '作り方：' + q.how }));
+    q.src.forEach(s => info.append(el('p', null, '出典：', /^https:\/\//.test(s.u) ? el('a', { href: s.u, target: '_blank', rel: 'noopener', text: s.t }) : s.t)));
+    if (q.data && q.data.note) info.append(el('p', { text: '注：' + q.data.note }));
+    const row = q.data && q.data.rows ? q.data.rows[0] : null, op = q.data && q.data.opts ? q.data.opts[0] : null;
+    $('exColP').textContent = `「${q.o[0]}」`;
+    $('exColV').textContent = row ? `${row.era}${q.data.unit ? '（' + q.data.unit + '）' : ''}` : op ? `${op.o}${q.data.unit ? '（' + q.data.unit + '）' : ''}` : q.basis === 'E' ? '掲載' : '—';
+    const tb = $('exTbl').tBodies[0]; tb.textContent = '';
+    const order = [...Array(N).keys()].sort((a, b) => rate[b] - rate[a]);
+    order.forEach(k => {
+      const v = row ? row.v[k] : op ? op.v[k] : q.basis === 'E' ? (q.data.listed.includes(k) ? '掲載' : '') : '';
+      const tr = el('tr', exSel === k ? { style: 'background:var(--key-weak)' } : null, el('td', { class: 'mono', text: code(k) }), el('td', { text: META.prefs[k] }), el('td', { class: 'r', text: pct(rate[k], 0) }), el('td', { class: 'r', text: typeof v === 'number' ? v.toLocaleString('ja-JP', { maximumFractionDigits: 2 }) : v }));
+      tb.append(tr);
+    });
+  }
+
+  // ---------- 出典・しくみ ----------
+  function aboutInit() {
+    const tb = $('basisTbl').tBodies[0]; tb.textContent = '';
+    Object.keys(BASIS).forEach(b => tb.append(el('tr', null, el('td', { text: BASIS_SHORT[b] + (b === 'KM' ? '（多肢）' : '') }), el('td', { class: 'r', text: QS.filter(q => q.basis === b).length }), el('td', { text: BASIS[b] }))));
+    const L = $('srcList'); L.textContent = '';
+    const seen = new Map();
+    QS.forEach(q => q.src.forEach(s => { const key = q.basis === 'E' ? 'E' : s.t; if (!seen.has(key)) seen.set(key, q.basis === 'E' ? { t: '農林水産省「うちの郷土料理」都道府県別ページ（説明文は都道府県名を伏せる加工をして使用）', u: 'https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/area/index.html' } : s); }));
+    [...seen.values()].forEach(s => L.append(el('li', null, el('a', { href: s.u, target: '_blank', rel: 'noopener', text: s.t }))));
+    L.append(el('li', { text: MAP.credit }));
+    L.append(el('li', { text: '人口：' + META.pop_src }));
+    L.append(el('li', { text: 'デザイン：デジタル庁デザインシステム（DADS）v2.18.1 のトークン値を参照' }));
+  }
+
+  // ---------- 起動 ----------
+  $('tQn').textContent = QS.length.toLocaleString('ja-JP');
+  $('tQm').textContent = QS.filter(q => q.basis !== 'E').length.toLocaleString('ja-JP');
+  $('foot').textContent = `${APP_VER}・問題 ${QS.length}問・データ作成 ${META.built}。${MAP.credit}。沖縄県は位置を移し拡大して表示。`;
+  $('startBtn').onclick = start; $('againBtn').onclick = start;
+  $('homeBtn').onclick = () => { mapTap = null; paint(E.PRIOR, 'post'); show('v-title'); };
+  $('quitBtn').onclick = () => { mapTap = null; paint(E.PRIOR, 'post'); show('v-title'); };
+  $('skipBtn').onclick = skip;
+  $('guessNow').onclick = () => { if (G && G.st.ans.length >= E.C.MIN_Q) finish(); };
+  $('yesBtn').onclick = yes; $('noBtn').onclick = no; $('abroadBtn').onclick = () => pickTruth(-1);
+  $('exploreBtn').onclick = () => { show('v-explore'); exSel = -1; mapTap = k => { exSel = k; exShow(); }; exploreInit(); };
+  $('exCat').onchange = exFill; $('exQ').onchange = () => { exSel = -1; exShow(); };
+  $('exBack').onclick = () => { mapTap = null; $('legendNote').textContent = ''; paint(E.PRIOR, 'post'); show('v-title'); };
+  $('aboutBtn').onclick = () => { aboutInit(); show('v-about'); };
+  $('aboutBack').onclick = () => show('v-title');
+  paint(E.PRIOR, 'post');
+  renderStatus();
+  loadCrowd();
+  window.__shusshin = { E: () => E, G: () => G, QS, META, normPlay, crowdFrom, start, choose: j => choose(j), skip, finish, yes, no, pickTruth, NET, ERR };
+})();
+</script>
