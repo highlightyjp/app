@@ -236,3 +236,36 @@ S9・S10 は、S1『主張単位の根拠監査』（`skills-drafts/S1-claim-evi
 - 出典の種別（一次／二次）は区分とは別の欄に書く。
 - 「確認済（二次）→ 未確認」と「明細の記載 → 確認済み」は、本人決定に含まれない対応付けで、本作業で行った評価・解釈である。
 - 本書の他の下書き（S01〜S11 の旧番号の各 SKILL.md）は旧区分のままで、変更していない。
+
+## 11. ラウンド3 清書（S7・S11）（追記: 2026-11-02）
+
+本節は追記のみで、第1〜10節は変更していない。番号体系はラウンド2の S1〜S19 を正とする（第10.1節）。
+
+### 11.1 対応表
+
+| ラウンド2の番号 | 正本（清書） | 統合リストの番号 | 旧番号 | 旧ディレクトリ名（置き換える下書き） | 下書きの所在 | 状態 |
+| --- | --- | --- | --- | --- | --- | --- |
+| S7 | [data-lineage-generation-audit](data-lineage-generation-audit/SKILL.md) データ来歴（生成と監査） | 8 | 本書第2節の S10 | [data-provenance-audit](data-provenance-audit/SKILL.md) | 本リポジトリ | 清書（未評価） |
+| S7（吸収） | 同上 | 15 | iOS_WebApp INDEX 第4節の 11（B11） | `open-data-embedding-pipeline` | `highlightyjp/iOS_WebApp` ブランチ `claude/adoring-babbage-vtlodn` | 吸収（下書きは変更していない） |
+| S11 | [external-material-rights-review](external-material-rights-review/SKILL.md) 外部素材の権利条件確認 | 14 | 本書第2節の S07 | [license-rights-check](license-rights-check/SKILL.md) | 本リポジトリ | 清書（未評価） |
+| S11（吸収） | 同上 | 16（権利部分のみ） | 未確認 | 未確認 | 未確認 | 吸収 |
+
+- 旧番号の S07・S10 と、ラウンド2の S7・S10 は別の体系である（第10.1節）。旧 S10（data-provenance-audit）はラウンド2の S7、旧 S07（license-rights-check）はラウンド2の S11 にあたる。
+- ディレクトリ名は、作業前に本リポジトリの全リモートブランチと `highlightyjp/iOS_WebApp` の全リモートブランチの `skills-drafts/` 以下のディレクトリ名を一覧にし、重ならないことを確認して付けた（2026-11-02）。
+- 下書き2件（data-provenance-audit、license-rights-check）は削除せず、末尾に正本への参照を追記した（本文は変更していない）。iOS_WebApp の `open-data-embedding-pipeline` は本作業の対象リポジトリ外のため、参照の追記をしていない。
+- 16 がどの下書きかは、統合リスト（ラウンド1）の原文を取得していないため未確認。S11 の差異表 D6 に記載した。
+
+### 11.2 定義の出典
+
+- S7・S11 の定義（発動・入力・手順・出力）、15 を S7 の1節として入れること、iOS_WebApp 側の DADS ライセンス表記の受け皿を S11 とすること（B12 ではない）は、本人の依頼文（ラウンド3清書セッション(B)、2026-11-02）による。
+- 前身の原文と定義の差異は統合せず、各正本の「差異」表に本人確認事項として列挙した（S7: D1〜D13、S11: D1〜D9）。
+
+### 11.3 根拠区分
+
+S7・S11 とも、S1『主張単位の根拠監査』（`skills-drafts/S1-claim-evidence-audit/SKILL.md`、ブランチ `claude/compassionate-bardeen-epsvvy`、コミット d8e6e71）の3区分「確認済み／評価・解釈／未確認」を使う。本人申告・実測・算出値の扱いは本人決定（2026-11-02）に従う（第10.5節と同じ）。各正本で本作業が独自に追加した対応付けは「本人の決定ではない」と明記した。
+
+### 11.4 未確認・限界
+
+- S7・S11 の評価（試行）は未実施。
+- 統合リスト（ラウンド1）とラウンド2レビューの原文は取得していない。
+- `highlightyjp/app` のブランチ `claude/compassionate-bardeen-epsvvy`（PR 4）は、本書とは別の内容の `skills-drafts/INDEX.md` を新規ファイルとして持つ。本書（第1〜11節）と同じパスのため、両方をマージする場合は衝突する。どちらを正とするかは本人の決定が必要。
