@@ -176,7 +176,7 @@ description: 成果物に入れる外部のコード・CSS・デザインデー�
 範囲:
 
 - データの出所・加工・仮定の追跡は S7『データ来歴（生成と監査）』（`skills-drafts/data-lineage-generation-audit/SKILL.md`）で行う。本書は、そのデータの利用条件（出典表示の義務を含む）を扱う。
-- 公開リポジトリでの個人情報・送信データの露出は B12（`public-repo-exposure-check`）の対象で、本書の対象ではない。
+- 公開リポジトリでの個人情報・送信データの露出は S16『公開前の個人情報・秘密・外部送信チェック』（`highlightyjp/iOS_WebApp` の `skills-drafts/S16-prepublish-exposure-check/SKILL.md`。ブランチ `claude/affectionate-clarke-fowag0`、未マージ。前身は B12 `public-repo-exposure-check`）の対象で、本書の対象ではない。
 
 ### 差異（前身の原文と本書の定義の違い。本人確認事項）
 
