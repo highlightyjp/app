@@ -154,7 +154,7 @@ input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:3px;ba
 input[type=range]::-moz-range-track{height:5px;border-radius:3px;background:transparent}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#fff;margin-top:-12.5px;box-shadow:0 1px 6px rgb(0 0 0 / .3)}
 input[type=range]::-moz-range-thumb{width:30px;height:30px;border:0;border-radius:50%;background:#fff;box-shadow:0 1px 6px rgb(0 0 0 / .3)}
-.preview{position:relative;height:120px;border-radius:var(--r-l);overflow:hidden;margin-top:14px;display:grid;place-items:center;
+.preview{position:relative;height:120px;border-radius:var(--r-l);overflow:hidden;margin-top:16px;display:grid;place-items:center;
   background:radial-gradient(circle at 20% 30%,#ff9f0a 0,transparent 45%),radial-gradient(circle at 80% 70%,#5e5ce6 0,transparent 50%),linear-gradient(135deg,#0a84ff,#bf5af2)}
 .preview .glass{padding:12px 26px;border-radius:999px;font-weight:600}
 
@@ -306,6 +306,7 @@ details .row{padding:8px 0}
     <h1 class="large-title">Almanac</h1>
     <p class="subtitle" id="today"></p>
     <label class="search"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6"/><path d="M13 13l4.5 4.5"/></svg><input type="search" id="q" placeholder="検索" aria-label="ツールを検索" autocomplete="off"></label>
+    <div id="home-daily"></div>
     <h2 class="section-title">ツール</h2>
     <ul class="group icons" id="tiles"></ul>
     <p class="footnote" id="no-result" hidden>該当するツールがありません。</p>
@@ -343,7 +344,7 @@ details .row{padding:8px 0}
       <div class="slider-labels"><span>クリア</span><span>ティント</span></div>
       <input type="range" id="glass" min="0" max="100" step="1" aria-label="Liquid Glassの強さ">
     </div></div>
-    <div class="preview" aria-hidden="true"><div class="glass">サンプル</div></div>
+    <div class="preview" aria-hidden="true"><div class="glass">今日の運勢</div></div>
     <p class="footnote">クリアにするほど透明に、ティントにするほど不透明で読みやすくなります。</p>
     <h2 class="section-title">文字サイズ</h2>
     <div class="group"><div class="slider-row">
@@ -351,13 +352,12 @@ details .row{padding:8px 0}
       <input type="range" id="textsize" min="85" max="135" step="5" aria-label="文字サイズ">
     </div></div>
     <button type="button" class="secondary wide" id="look-reset">初期値に戻す</button>
-    <p class="footnote" id="app-version">V5: 統一指示書 v5 対応（データ schema v1・操作性）</p>
   </section>
 
   <!-- 今日の運勢(既存ロジックの画面) -->
   <section id="tool-omikuji" class="page" hidden>
     <h1 class="large-title">今日の運勢</h1>
-    <p class="subtitle">おみくじと数秘術(運命数)　必要: 生年月日</p>
+    <p class="subtitle">おみくじと数秘術(運命数)</p>
 
     <section id="input" aria-labelledby="in-label">
       <div class="group"><div class="form-row"><label id="in-label" for="birth">生年月日</label><div class="ctl"><input type="date" id="birth" min="1900-01-01"></div></div></div>
@@ -1576,6 +1576,7 @@ const KAKU = (function(){
   function showTab(name, keepHist){
     if (name === "home" && navBack.hidden && !pages.home.hidden){ window.scrollTo({ top: 0, behavior: "smooth" }); return; }  /* ホームを再タップで先頭へ */
     markTab(name); present(pages[name], TAB_TITLE[name], false);
+    if (name === "home") renderHomeDaily();
     if (!keepHist && history.state && history.state.tool) { try { history.replaceState({ tab: name }, ""); } catch (e) {} }
   }
   let homeY = 0;
@@ -1673,6 +1674,36 @@ const KAKU = (function(){
     body.appendChild(blk);
   }
   function note(body, text){ body.appendChild(el("p", "note", text)); }
+
+  /* ----- ホームの今日の運勢（導線のみ。算出は dailyBlock をそのまま使う） ----- */
+  function renderHomeDaily(){
+    const host = $("home-daily");
+    if (!host) return;
+    host.replaceChildren();
+    const b = parseBirth(profile.birth);
+    if (!b){
+      const blk = el("div", "block");
+      blk.appendChild(el("h2", null, "今日の運勢"));
+      blk.appendChild(el("p", null, "プロフィールを入れると、あなたの星座の今日の運勢がここに出ます。"));
+      const btn = el("button", "primary", "プロフィールを入力");
+      btn.style.marginTop = "12px";
+      btn.addEventListener("click", () => { goProfile(); $("p-birth").focus(); });
+      blk.appendChild(btn);
+      host.appendChild(blk);
+      return;
+    }
+    const t = parseTime(profile.time);
+    const z = U.zodiac(b.y, b.m, b.d, t);
+    const wrap = el("div");
+    dailyBlock(wrap, "zodiac|" + z.sun.main);
+    const h = wrap.querySelector("h2"); h.textContent = "今日の運勢(" + U.SIGNS[z.sun.main][0] + ")";
+    const blk = wrap.firstChild;
+    blk.style.cursor = "pointer";
+    blk.setAttribute("role", "button");
+    blk.setAttribute("aria-label", "星座占いを開く");
+    blk.addEventListener("click", () => open("zodiac"));
+    host.appendChild(wrap);
+  }
 
   /* ----- 星座占い ----- */
   function renderZodiac(body){
@@ -2323,7 +2354,7 @@ const KAKU = (function(){
     } else {
       const sec = el("section", "page");
       sec.hidden = true;
-      sec.append(el("h1", "large-title", t.name), el("p", "subtitle", t.desc + (t.need ? "　必要: " + t.need : "")));
+      sec.append(el("h1", "large-title", t.name), el("p", "subtitle", t.desc));
       const body = el("div");
       sec.appendChild(body);
       holder.appendChild(sec);
@@ -2375,12 +2406,14 @@ const KAKU = (function(){
       return;
     }
     $("p-msg").textContent = "保存しました。";
+    renderHomeDaily();
   });
   $("p-clear").addEventListener("click", () => {
     profile = {};
     try { localStorage.removeItem(PKEY); localStorage.removeItem(PKEY_LEGACY); readFail = false; } catch (e) {}
     fill();
     $("p-msg").textContent = "消去しました。";
+    renderHomeDaily();
   });
   /* ----- 検索(ホーム) ----- */
   function markFirst(){
@@ -2395,6 +2428,7 @@ const KAKU = (function(){
     markFirst();
   });
   markFirst();
+  renderHomeDaily();
 
   /* ----- タブ・戻る・スクロール ----- */
   document.querySelectorAll("#tabbar .tab").forEach(b => b.addEventListener("click", () => showTab(b.dataset.tab)));
